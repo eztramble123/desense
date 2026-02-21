@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import clsx from "clsx";
 import { OutputChart } from "../components/OutputChart";
 import { SAMPLE_ASSETS, SAMPLE_ASSET_READINGS, SAMPLE_STATS } from "../data/sample";
+
+const AssetMap = dynamic(
+  () => import("../components/AssetMap").then((m) => m.AssetMap),
+  { ssr: false, loading: () => <div className="rounded-xl bg-[#0a1530] border border-[#152046]" style={{ height: 420 }} /> }
+);
 
 const DISPLAY_FONT = { fontFamily: "'Barlow Condensed', sans-serif" };
 
@@ -99,6 +105,9 @@ export default function AnalyticsPage() {
             <StatBox label="Avg Capacity Factor" value={`${avgCF.toFixed(1)}%`} />
             <StatBox label="Avg Uptime"         value={`${avgUptime.toFixed(1)}%`}                  sub={`${totalBatches} batches`} />
           </div>
+
+          {/* Map */}
+          <AssetMap assets={filtered} />
 
           {/* Chart */}
           <div className="panel p-8">
