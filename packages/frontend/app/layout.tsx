@@ -17,8 +17,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "DeSense - Proof-of-Sensing DePIN Network",
-  description: "Sensor-network DePIN marketplace on ADI Chain",
+  title: "Zeus - Proof-of-Generation Energy Verification",
+  description: "Blockchain-verified energy proof-of-generation platform on ADI Chain",
 };
 
 export default function RootLayout({
@@ -29,17 +29,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zeus-stone-50`}
       >
         <Providers>
           <div className="flex min-h-screen">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-              <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8">
-                <div />
+              <header className="h-14 bg-zeus-stone-900 border-b border-zeus-stone-700 flex items-center justify-between px-8">
+                <span className="zeus-label text-zeus-stone-400">ADI CHAIN TESTNET</span>
                 <ConnectButton />
               </header>
-              <main className="flex-1 p-8">{children}</main>
+              <main className="flex-1 p-8 bg-zeus-stone-50">{children}</main>
             </div>
           </div>
         </Providers>

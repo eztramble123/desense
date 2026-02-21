@@ -11,30 +11,30 @@ import {
   parseEther,
 } from "../../hooks/useContracts";
 
-export default function CreateOrderPage() {
+export default function CreateSubscriptionPage() {
   const { createOrder, isPending, isConfirming, isSuccess, hash } =
     useCreateOrder();
 
   const [deviceType, setDeviceType] = useState("0");
   const [region, setRegion] = useState("");
-  const [minUptimePercent, setMinUptimePercent] = useState("");
+  const [minCapacityPercent, setMinCapacityPercent] = useState("");
   const [minAvgOutput, setMinAvgOutput] = useState("");
   const [durationDays, setDurationDays] = useState("");
-  const [pricePerBatch, setPricePerBatch] = useState("");
+  const [pricePerAttestation, setPricePerAttestation] = useState("");
   const [escrowAmount, setEscrowAmount] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const uptimeBps = BigInt(Math.round(parseFloat(minUptimePercent) * 100));
+    const capacityBps = BigInt(Math.round(parseFloat(minCapacityPercent) * 100));
     const output = BigInt(minAvgOutput);
     const durationSeconds = BigInt(parseInt(durationDays) * 86400);
-    const priceWei = parseEther(pricePerBatch);
+    const priceWei = parseEther(pricePerAttestation);
 
     createOrder(
       parseInt(deviceType),
       region,
-      uptimeBps,
+      capacityBps,
       output,
       durationSeconds,
       priceWei,
@@ -47,52 +47,48 @@ export default function CreateOrderPage() {
   return (
     <RoleGuard role="buyer">
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Header */}
         <div>
           <Link
             href="/buyer"
-            className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4"
+            className="inline-flex items-center gap-1.5 text-sm text-zeus-stone-500 hover:text-zeus-stone-700 transition-colors mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
+            Back to Subscriptions
           </Link>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Create Data Order
+          <h1 className="zeus-heading text-2xl text-zeus-stone-900">
+            Create Subscription
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Specify your data requirements and escrow funds for device operators
+          <p className="text-sm text-zeus-stone-500 mt-1">
+            Specify your generation data requirements and escrow funds for asset operators
           </p>
         </div>
 
-        {/* Success State */}
         {isSuccess && hash && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5">
             <div className="flex items-center gap-2 mb-2">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
-              <p className="font-semibold text-green-800">
-                Order Created Successfully
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              <p className="font-semibold text-emerald-800">
+                Subscription Created Successfully
               </p>
             </div>
-            <div className="text-sm text-green-700">
+            <div className="text-sm text-emerald-700">
               Transaction: <TxLink hash={hash} />
             </div>
           </div>
         )}
 
-        {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-xl border border-slate-200 p-6 space-y-5"
+          className="zeus-card p-6 space-y-5"
         >
-          {/* Device Type */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Device Type
+            <label className="zeus-label mb-1.5 block">
+              Asset Type
             </label>
             <select
               value={deviceType}
               onChange={(e) => setDeviceType(e.target.value)}
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="zeus-input"
             >
               {DEVICE_TYPES.map((type, i) => (
                 <option key={i} value={i}>
@@ -102,9 +98,8 @@ export default function CreateOrderPage() {
             </select>
           </div>
 
-          {/* Region */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className="zeus-label mb-1.5 block">
               Region
             </label>
             <input
@@ -112,38 +107,35 @@ export default function CreateOrderPage() {
               value={region}
               onChange={(e) => setRegion(e.target.value)}
               placeholder="e.g., US-WEST, EU-CENTRAL"
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="zeus-input"
               required
             />
           </div>
 
-          {/* Two columns */}
           <div className="grid grid-cols-2 gap-4">
-            {/* Min Uptime % */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Min Uptime (%)
+              <label className="zeus-label mb-1.5 block">
+                Min Capacity Factor (%)
               </label>
               <input
                 type="number"
                 step="0.01"
                 min="0"
                 max="100"
-                value={minUptimePercent}
-                onChange={(e) => setMinUptimePercent(e.target.value)}
+                value={minCapacityPercent}
+                onChange={(e) => setMinCapacityPercent(e.target.value)}
                 placeholder="e.g., 95.00"
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="zeus-input"
                 required
               />
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-zeus-stone-400 mt-1">
                 Converted to basis points (95% = 9500 bps)
               </p>
             </div>
 
-            {/* Min Avg Output */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Min Avg Output
+              <label className="zeus-label mb-1.5 block">
+                Min Avg Generation (kWh)
               </label>
               <input
                 type="number"
@@ -151,18 +143,17 @@ export default function CreateOrderPage() {
                 value={minAvgOutput}
                 onChange={(e) => setMinAvgOutput(e.target.value)}
                 placeholder="e.g., 500"
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="zeus-input"
                 required
               />
-              <p className="text-xs text-slate-400 mt-1">
-                Minimum average output per batch
+              <p className="text-xs text-zeus-stone-400 mt-1">
+                Minimum average generation per attestation
               </p>
             </div>
           </div>
 
-          {/* Duration */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className="zeus-label mb-1.5 block">
               Duration (days)
             </label>
             <input
@@ -171,34 +162,31 @@ export default function CreateOrderPage() {
               value={durationDays}
               onChange={(e) => setDurationDays(e.target.value)}
               placeholder="e.g., 30"
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="zeus-input"
               required
             />
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-zeus-stone-400 mt-1">
               Automatically converted to seconds on-chain
             </p>
           </div>
 
-          {/* Two columns */}
           <div className="grid grid-cols-2 gap-4">
-            {/* Price Per Batch */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Price Per Batch (ADI)
+              <label className="zeus-label mb-1.5 block">
+                Price Per Attestation (ADI)
               </label>
               <input
                 type="text"
-                value={pricePerBatch}
-                onChange={(e) => setPricePerBatch(e.target.value)}
+                value={pricePerAttestation}
+                onChange={(e) => setPricePerAttestation(e.target.value)}
                 placeholder="e.g., 0.01"
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="zeus-input"
                 required
               />
             </div>
 
-            {/* Escrow Amount */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              <label className="zeus-label mb-1.5 block">
                 Escrow Amount (ADI)
               </label>
               <input
@@ -206,20 +194,19 @@ export default function CreateOrderPage() {
                 value={escrowAmount}
                 onChange={(e) => setEscrowAmount(e.target.value)}
                 placeholder="e.g., 10.0"
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="zeus-input"
                 required
               />
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-zeus-stone-400 mt-1">
                 Sent as msg.value to the contract
               </p>
             </div>
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="zeus-btn-primary w-full py-3"
           >
             {isPending ? (
               <>
@@ -234,7 +221,7 @@ export default function CreateOrderPage() {
             ) : (
               <>
                 <Send className="w-4 h-4" />
-                Create Order
+                Create Subscription
               </>
             )}
           </button>

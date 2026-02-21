@@ -41,46 +41,42 @@ export default function CreateTriggerPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* Header */}
       <div>
         <Link
           href="/finance"
-          className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-zeus-stone-500 hover:text-zeus-stone-700 transition-colors mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Finance
+          Back to Performance Triggers
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900">
-          Create Financing Trigger
+        <h1 className="zeus-heading text-2xl text-zeus-stone-900">
+          Create Performance Trigger
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Set up a performance-based payout trigger for a device
+        <p className="text-sm text-zeus-stone-500 mt-1">
+          Set up a performance-based payout trigger for a generation asset
         </p>
       </div>
 
-      {/* Success State */}
       {isSuccess && hash && (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5">
           <div className="flex items-center gap-2 mb-2">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-            <p className="font-semibold text-green-800">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+            <p className="font-semibold text-emerald-800">
               Trigger Created Successfully
             </p>
           </div>
-          <div className="text-sm text-green-700">
+          <div className="text-sm text-emerald-700">
             Transaction: <TxLink hash={hash} />
           </div>
         </div>
       )}
 
-      {/* Form */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-xl border border-slate-200 p-6 space-y-5"
+        className="zeus-card p-6 space-y-5"
       >
-        {/* Beneficiary */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label className="zeus-label mb-1.5 block">
             Beneficiary Address
           </label>
           <input
@@ -88,20 +84,18 @@ export default function CreateTriggerPage() {
             value={beneficiary}
             onChange={(e) => setBeneficiary(e.target.value)}
             placeholder="0x..."
-            className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="zeus-input font-mono"
             required
           />
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-zeus-stone-400 mt-1">
             Address that will receive the payout when the trigger fires
           </p>
         </div>
 
-        {/* Two columns */}
         <div className="grid grid-cols-2 gap-4">
-          {/* Device ID */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
-              Device ID
+            <label className="zeus-label mb-1.5 block">
+              Asset ID
             </label>
             <input
               type="number"
@@ -109,20 +103,19 @@ export default function CreateTriggerPage() {
               value={deviceId}
               onChange={(e) => setDeviceId(e.target.value)}
               placeholder="e.g., 0"
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="zeus-input"
               required
             />
           </div>
 
-          {/* Trigger Type */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className="zeus-label mb-1.5 block">
               Trigger Type
             </label>
             <select
               value={triggerType}
               onChange={(e) => setTriggerType(e.target.value)}
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="zeus-input"
             >
               {TRIGGER_TYPES.map((type, i) => (
                 <option key={i} value={i}>
@@ -133,9 +126,8 @@ export default function CreateTriggerPage() {
           </div>
         </div>
 
-        {/* Threshold */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label className="zeus-label mb-1.5 block">
             Threshold
           </label>
           <input
@@ -143,21 +135,19 @@ export default function CreateTriggerPage() {
             min="0"
             value={threshold}
             onChange={(e) => setThreshold(e.target.value)}
-            placeholder="e.g., 9500 for uptime bps, or 500 for output"
-            className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="e.g., 9500 for capacity factor bps, or 500 for generation"
+            className="zeus-input"
             required
           />
-          <p className="text-xs text-slate-400 mt-1">
-            For uptime triggers, use basis points (95% = 9500). For output
-            triggers, use raw output value.
+          <p className="text-xs text-zeus-stone-400 mt-1">
+            For capacity factor triggers, use basis points (95% = 9500). For generation
+            triggers, use raw kWh value.
           </p>
         </div>
 
-        {/* Two columns */}
         <div className="grid grid-cols-2 gap-4">
-          {/* Observation Period */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className="zeus-label mb-1.5 block">
               Observation Period (days)
             </label>
             <input
@@ -166,17 +156,16 @@ export default function CreateTriggerPage() {
               value={observationDays}
               onChange={(e) => setObservationDays(e.target.value)}
               placeholder="e.g., 30"
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="zeus-input"
               required
             />
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-zeus-stone-400 mt-1">
               Converted to seconds on-chain
             </p>
           </div>
 
-          {/* Required Streak */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className="zeus-label mb-1.5 block">
               Required Streak
             </label>
             <input
@@ -185,18 +174,17 @@ export default function CreateTriggerPage() {
               value={requiredStreak}
               onChange={(e) => setRequiredStreak(e.target.value)}
               placeholder="e.g., 5"
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="zeus-input"
               required
             />
-            <p className="text-xs text-slate-400 mt-1">
-              Consecutive qualifying batches needed to fire
+            <p className="text-xs text-zeus-stone-400 mt-1">
+              Consecutive qualifying attestations needed
             </p>
           </div>
         </div>
 
-        {/* Payout Amount */}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          <label className="zeus-label mb-1.5 block">
             Payout Amount (ADI)
           </label>
           <input
@@ -204,19 +192,18 @@ export default function CreateTriggerPage() {
             value={payoutAmount}
             onChange={(e) => setPayoutAmount(e.target.value)}
             placeholder="e.g., 5.0"
-            className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="zeus-input"
             required
           />
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-zeus-stone-400 mt-1">
             Escrowed in the contract and released when the trigger fires
           </p>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="zeus-btn-primary w-full py-3"
         >
           {isPending ? (
             <>

@@ -32,9 +32,9 @@ export function RoleGuard({ role, children, fallback }: RoleGuardProps) {
 
   if (!isConnected) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400">
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-zeus-stone-400">
         <Shield className="w-12 h-12 mb-4" />
-        <p className="text-lg font-medium">Connect your wallet to continue</p>
+        <p className="zeus-heading text-lg">Connect Wallet to Continue</p>
       </div>
     );
   }
@@ -42,7 +42,7 @@ export function RoleGuard({ role, children, fallback }: RoleGuardProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-2 border-zeus-gold border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -50,9 +50,9 @@ export function RoleGuard({ role, children, fallback }: RoleGuardProps) {
   if (!hasRole) {
     if (fallback) return <>{fallback}</>;
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-slate-400">
+      <div className="flex flex-col items-center justify-center min-h-[400px] text-zeus-stone-400">
         <Shield className="w-12 h-12 mb-4" />
-        <p className="text-lg font-medium">Access Denied</p>
+        <p className="zeus-heading text-lg">Access Denied</p>
         <p className="text-sm mt-2">
           You need the <span className="font-semibold capitalize">{role}</span> role to access this page.
         </p>

@@ -50,7 +50,7 @@ async function main() {
 
   // Deploy MockERC20
   const mockTokenArtifact = await deployer.loadArtifact("MockERC20");
-  const mockToken = await deployer.deploy(mockTokenArtifact, ["DeSense Test USDC", "dsUSDC"]);
+  const mockToken = await deployer.deploy(mockTokenArtifact, ["Zeus Test USDC", "zUSDC"]);
   const mockTokenAddr = await mockToken.getAddress();
   console.log("MockERC20:", mockTokenAddr);
 
@@ -103,7 +103,7 @@ async function main() {
   const validAfter = 0;
 
   const domain = {
-    name: "DeSensePaymaster",
+    name: "ZeusPaymaster",
     version: "1",
     chainId,
     verifyingContract: nativePaymasterAddr,
@@ -173,16 +173,16 @@ async function main() {
   // 1. Mint MockERC20 to the test user's smart account
   const mintAmount = ethers.parseEther("1000");
   await (await mockToken.mint(smartAccountAddr, mintAmount)).wait();
-  console.log(`Minted ${ethers.formatEther(mintAmount)} dsUSDC to smart account`);
+  console.log(`Minted ${ethers.formatEther(mintAmount)} zUSDC to smart account`);
 
   const tokenBalance = await mockToken.balanceOf(smartAccountAddr);
-  console.log(`Smart account token balance: ${ethers.formatEther(tokenBalance)} dsUSDC`);
+  console.log(`Smart account token balance: ${ethers.formatEther(tokenBalance)} zUSDC`);
 
   // 2. Calculate required token cost for gas
   const estimatedGasCost = ethers.parseEther("0.01"); // estimated gas in native
   const tokenCost = await erc20Paymaster.getTokenCostForGas(estimatedGasCost);
   console.log(`Estimated gas cost: ${ethers.formatEther(estimatedGasCost)} ADI`);
-  console.log(`Token cost (with markup): ${ethers.formatEther(tokenCost)} dsUSDC`);
+  console.log(`Token cost (with markup): ${ethers.formatEther(tokenCost)} zUSDC`);
 
   // 3. Build ERC20 paymasterAndData
   const maxTokenCost = tokenCost * 2n; // 2x buffer for safety
@@ -202,18 +202,18 @@ async function main() {
   console.log("  sender:", smartAccountAddr);
   console.log("  paymaster:", erc20PaymasterAddr);
   console.log("  token:", mockTokenAddr);
-  console.log("  maxTokenCost:", ethers.formatEther(maxTokenCost), "dsUSDC");
+  console.log("  maxTokenCost:", ethers.formatEther(maxTokenCost), "zUSDC");
 
   console.log("\n  UserOp constructed successfully!");
   console.log("  In production, this would be sent to EntryPoint.handleOps()");
-  console.log("  The user pays gas in dsUSDC tokens — ERC20Paymaster handles native gas.");
+  console.log("  The user pays gas in zUSDC tokens — ERC20Paymaster handles native gas.");
 
   // =========================================================
   // SUMMARY
   // =========================================================
   console.log("\n========== E2E DEMO SUMMARY ==========\n");
   console.log("Deployed Contracts:");
-  console.log(`  MockERC20 (dsUSDC): ${mockTokenAddr}`);
+  console.log(`  MockERC20 (zUSDC): ${mockTokenAddr}`);
   console.log(`  SimpleAccountFactory: ${factoryAddr}`);
   console.log(`  NativePaymaster: ${nativePaymasterAddr}`);
   console.log(`  ERC20Paymaster: ${erc20PaymasterAddr}`);

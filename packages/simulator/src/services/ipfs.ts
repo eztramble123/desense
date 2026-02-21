@@ -47,7 +47,7 @@ export async function pinToIPFS(batch: BatchData, merkle: MerkleResult): Promise
     body: JSON.stringify({
       pinataContent: payload,
       pinataMetadata: {
-        name: `desense-batch-${batch.deviceId}-${batch.windowStart}`,
+        name: `zeus-attestation-${batch.deviceId}-${batch.windowStart}`,
       },
     }),
   });

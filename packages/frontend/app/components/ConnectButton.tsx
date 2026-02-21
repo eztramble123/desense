@@ -13,12 +13,12 @@ export function ConnectButton() {
   if (isConnected && address) {
     return (
       <div className="flex items-center gap-3">
-        <span className="text-sm font-mono text-slate-400">
+        <span className="text-xs font-mono text-zeus-stone-400 tracking-wider">
           {address.slice(0, 6)}...{address.slice(-4)}
         </span>
         <button
           onClick={() => disconnect()}
-          className="px-3 py-1.5 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+          className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider bg-zeus-stone-700 hover:bg-zeus-stone-600 text-zeus-stone-200 rounded-lg transition-colors border border-zeus-stone-600"
         >
           Disconnect
         </button>
@@ -30,7 +30,7 @@ export function ConnectButton() {
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+        className="px-4 py-2 bg-zeus-gold hover:bg-zeus-gold-dark text-white text-xs font-bold uppercase tracking-wider rounded-lg transition-colors shadow-sm"
       >
         Connect Wallet
       </button>
@@ -41,14 +41,14 @@ export function ConnectButton() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setShowModal(false)}
           />
-          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+          <div className="relative bg-white rounded-xl shadow-xl w-full max-w-sm p-6 border border-zeus-stone-200">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="zeus-heading text-lg text-zeus-stone-800">
                 Connect Wallet
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                className="p-1 text-zeus-stone-400 hover:text-zeus-stone-600 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -63,10 +63,10 @@ export function ConnectButton() {
                     setShowModal(false);
                   }}
                   disabled={isPending}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 text-left transition-colors disabled:opacity-50"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-zeus-stone-50 border border-zeus-stone-200 hover:border-zeus-gold hover:bg-zeus-stone-100 text-left transition-colors disabled:opacity-50 shadow-inner"
                 >
-                  <Wallet className="w-5 h-5 text-slate-500" />
-                  <span className="text-sm font-medium text-slate-700">
+                  <Wallet className="w-5 h-5 text-zeus-stone-500" />
+                  <span className="text-sm font-medium text-zeus-stone-700">
                     {connector.name}
                   </span>
                 </button>
@@ -74,7 +74,7 @@ export function ConnectButton() {
             </div>
 
             {connectors.length === 0 && (
-              <p className="text-sm text-slate-500 text-center py-4">
+              <p className="text-sm text-zeus-stone-500 text-center py-4">
                 No wallets detected. Install MetaMask or another browser wallet.
               </p>
             )}

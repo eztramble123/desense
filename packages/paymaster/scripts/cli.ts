@@ -32,7 +32,7 @@ const ERC20_PAYMASTER_ABI = [
 ];
 
 // EIP-712 types
-const EIP712_DOMAIN_NAME = "DeSensePaymaster";
+const EIP712_DOMAIN_NAME = "ZeusPaymaster";
 const EIP712_DOMAIN_VERSION = "1";
 const CHAIN_ID = 99999;
 
@@ -59,8 +59,8 @@ function getWallet() {
 const program = new Command();
 
 program
-  .name("desense-paymaster")
-  .description("DeSense ERC-4337 Paymaster CLI")
+  .name("zeus-paymaster")
+  .description("Zeus ERC-4337 Paymaster CLI")
   .version("0.1.0");
 
 // --- deploy ---

@@ -4,35 +4,35 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import {
-  Cpu,
-  ShoppingCart,
+  Sun,
+  BarChart3,
   Shield,
   TrendingUp,
-  Radio,
+  Zap,
   Fuel,
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/operator", label: "Operator", icon: Cpu },
-  { href: "/buyer", label: "Buyer", icon: ShoppingCart },
-  { href: "/finance", label: "Finance", icon: TrendingUp },
-  { href: "/admin", label: "Admin", icon: Shield },
-  { href: "/admin/paymaster", label: "Paymaster", icon: Fuel },
+  { href: "/operator", label: "Generation Assets", icon: Sun },
+  { href: "/buyer", label: "Data Subscriptions", icon: BarChart3 },
+  { href: "/finance", label: "Performance Triggers", icon: TrendingUp },
+  { href: "/admin", label: "Administration", icon: Shield },
+  { href: "/admin/paymaster", label: "Gas Sponsorship", icon: Fuel },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-slate-900 text-white min-h-screen flex flex-col">
-      <div className="p-6 border-b border-slate-800">
+    <aside className="w-64 bg-zeus-stone-900 text-white min-h-screen flex flex-col">
+      <div className="p-6 border-b border-zeus-stone-700">
         <Link href="/" className="flex items-center gap-3">
-          <div className="p-2 bg-blue-600 rounded-lg">
-            <Radio className="w-5 h-5" />
+          <div className="p-2 bg-zeus-gold rounded-lg">
+            <Zap className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="font-bold text-lg">DeSense</h1>
-            <p className="text-xs text-slate-400">Proof-of-Sensing DePIN</p>
+            <h1 className="font-display font-bold text-lg uppercase tracking-wider">Zeus</h1>
+            <p className="text-[10px] uppercase tracking-[0.15em] text-zeus-stone-400">Proof-of-Generation</p>
           </div>
         </Link>
       </div>
@@ -45,21 +45,21 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={clsx(
-                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors",
                 isActive
-                  ? "bg-blue-600/20 text-blue-400"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  ? "bg-zeus-gold/20 text-zeus-gold-light"
+                  : "text-zeus-stone-400 hover:text-white hover:bg-zeus-stone-800"
               )}
             >
-              <item.icon className="w-5 h-5" />
+              <item.icon className="w-4 h-4" />
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-slate-800">
-        <div className="text-xs text-slate-500">
+      <div className="p-4 border-t border-zeus-stone-700">
+        <div className="text-[10px] uppercase tracking-[0.15em] text-zeus-stone-500">
           <p>ADI Testnet (99999)</p>
           <p className="mt-1">Powered by ADI Chain</p>
         </div>

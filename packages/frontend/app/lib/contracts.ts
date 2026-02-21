@@ -71,8 +71,8 @@ export const FINANCING_TRIGGER_ABI = [
 ] as const;
 
 // Enum helpers
-export const DEVICE_TYPES = ["Solar Panel", "Power Meter", "Transformer", "Wind Turbine"] as const;
+export const DEVICE_TYPES = ["Solar Array", "Wind Turbine", "Hydro Turbine", "Smart Meter"] as const;
 export const DEVICE_STATUSES = ["Pending", "Active", "Suspended", "Decommissioned"] as const;
 export const ORDER_STATUSES = ["Open", "Active", "Completed", "Cancelled"] as const;
-export const TRIGGER_TYPES = ["Output Above", "Output Below", "Uptime Above", "Uptime Below"] as const;
+export const TRIGGER_TYPES = ["Generation Above", "Generation Below", "Capacity Factor Above", "Capacity Factor Below"] as const;
 export const TRIGGER_STATUSES = ["Active", "Triggered", "Expired", "Cancelled"] as const;

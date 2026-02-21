@@ -6,9 +6,9 @@ import {
   UserPlus,
   UserMinus,
   Search,
-  Cpu,
+  Sun,
   Database,
-  ShoppingCart,
+  BarChart3,
   TrendingUp,
   Loader2,
   CheckCircle2,
@@ -27,7 +27,6 @@ import {
 } from "../hooks/useContracts";
 
 export default function AdminPage() {
-  // Role management state
   const [roleAddress, setRoleAddress] = useState("");
   const {
     grantOperator,
@@ -42,12 +41,10 @@ export default function AdminPage() {
     hash,
   } = useGrantRole();
 
-  // Role check state
   const [checkAddress, setCheckAddress] = useState("");
   const [queriedAddress, setQueriedAddress] = useState<`0x${string}` | undefined>();
   const roles = useRoles(queriedAddress);
 
-  // System stats
   const { data: totalDevices } = useTotalDevices();
   const { data: totalBatches } = useTotalBatches();
   const { data: totalOrders } = useTotalOrders();
@@ -70,34 +67,32 @@ export default function AdminPage() {
   return (
     <RoleGuard role="admin">
       <div className="space-y-8">
-        {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Admin Panel</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="zeus-heading text-2xl text-zeus-stone-900">System Administration</h1>
+          <p className="text-sm text-zeus-stone-500 mt-1">
             Manage roles and monitor system health
           </p>
         </div>
 
-        {/* System Stats */}
         <div>
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">
+          <h2 className="zeus-heading text-sm text-zeus-stone-800 mb-4">
             System Statistics
           </h2>
           <div className="grid grid-cols-4 gap-4">
             <StatCard
-              label="Total Devices"
+              label="Total Assets"
               value={totalDevices !== undefined ? Number(totalDevices).toString() : "--"}
-              icon={Cpu}
+              icon={Sun}
             />
             <StatCard
-              label="Total Batches"
+              label="Total Attestations"
               value={totalBatches !== undefined ? Number(totalBatches).toString() : "--"}
               icon={Database}
             />
             <StatCard
-              label="Total Orders"
+              label="Total Subscriptions"
               value={totalOrders !== undefined ? Number(totalOrders).toString() : "--"}
-              icon={ShoppingCart}
+              icon={BarChart3}
             />
             <StatCard
               label="Total Triggers"
@@ -107,33 +102,30 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Role Management */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="zeus-card p-6">
           <div className="flex items-center gap-2 mb-5">
-            <Shield className="w-5 h-5 text-slate-400" />
-            <h2 className="text-lg font-semibold text-slate-900">
+            <Shield className="w-5 h-5 text-zeus-gold" />
+            <h2 className="zeus-heading text-sm text-zeus-stone-800">
               Role Management
             </h2>
           </div>
 
-          {/* Success feedback */}
           {isSuccess && hash && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-5">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-5">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                <p className="text-sm font-medium text-green-800">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <p className="text-sm font-medium text-emerald-800">
                   Role updated successfully
                 </p>
               </div>
-              <div className="text-sm text-green-700 mt-1">
+              <div className="text-sm text-emerald-700 mt-1">
                 Transaction: <TxLink hash={hash} />
               </div>
             </div>
           )}
 
-          {/* Address input */}
           <div className="mb-5">
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label className="zeus-label mb-1.5 block">
               Wallet Address
             </label>
             <input
@@ -141,20 +133,19 @@ export default function AdminPage() {
               value={roleAddress}
               onChange={(e) => setRoleAddress(e.target.value)}
               placeholder="0x..."
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="zeus-input font-mono"
             />
           </div>
 
-          {/* Grant buttons */}
           <div className="mb-4">
-            <p className="text-sm font-medium text-slate-600 mb-2">
+            <p className="zeus-label mb-2">
               Grant Role
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => handleRoleAction(grantOperator)}
                 disabled={isSubmitting || !roleAddress}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="zeus-btn-primary text-xs py-2"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -166,19 +157,19 @@ export default function AdminPage() {
               <button
                 onClick={() => handleRoleAction(grantBuyer)}
                 disabled={isSubmitting || !roleAddress}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="zeus-btn-primary text-xs py-2"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
                   <UserPlus className="w-3.5 h-3.5" />
                 )}
-                Buyer
+                Subscriber
               </button>
               <button
                 onClick={() => handleRoleAction(grantAuditor)}
                 disabled={isSubmitting || !roleAddress}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="zeus-btn-primary text-xs py-2"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -190,16 +181,15 @@ export default function AdminPage() {
             </div>
           </div>
 
-          {/* Revoke buttons */}
           <div>
-            <p className="text-sm font-medium text-slate-600 mb-2">
+            <p className="zeus-label mb-2">
               Revoke Role
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => handleRoleAction(revokeOperator)}
                 disabled={isSubmitting || !roleAddress}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-red-200 text-red-600 bg-white hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider border border-red-200 text-red-600 bg-white hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -211,19 +201,19 @@ export default function AdminPage() {
               <button
                 onClick={() => handleRoleAction(revokeBuyer)}
                 disabled={isSubmitting || !roleAddress}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-red-200 text-red-600 bg-white hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider border border-red-200 text-red-600 bg-white hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
                   <UserMinus className="w-3.5 h-3.5" />
                 )}
-                Buyer
+                Subscriber
               </button>
               <button
                 onClick={() => handleRoleAction(revokeAuditor)}
                 disabled={isSubmitting || !roleAddress}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium border border-red-200 text-red-600 bg-white hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider border border-red-200 text-red-600 bg-white hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isSubmitting ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -236,11 +226,10 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Role Check */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="zeus-card p-6">
           <div className="flex items-center gap-2 mb-5">
-            <Search className="w-5 h-5 text-slate-400" />
-            <h2 className="text-lg font-semibold text-slate-900">
+            <Search className="w-5 h-5 text-zeus-gold" />
+            <h2 className="zeus-heading text-sm text-zeus-stone-800">
               Role Lookup
             </h2>
           </div>
@@ -251,12 +240,12 @@ export default function AdminPage() {
               value={checkAddress}
               onChange={(e) => setCheckAddress(e.target.value)}
               placeholder="0x... address to check"
-              className="flex-1 px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="zeus-input flex-1 font-mono"
             />
             <button
               onClick={handleCheckRoles}
               disabled={!checkAddress}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="zeus-btn-primary"
             >
               <Search className="w-4 h-4" />
               Check
@@ -264,22 +253,22 @@ export default function AdminPage() {
           </div>
 
           {queriedAddress && (
-            <div className="border border-slate-200 rounded-lg divide-y divide-slate-200">
+            <div className="border border-zeus-stone-200 rounded-lg divide-y divide-zeus-stone-200">
               <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm font-medium text-slate-700">
+                <span className="zeus-label">
                   Admin
                 </span>
                 <RoleBadge active={roles.isAdmin} />
               </div>
               <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm font-medium text-slate-700">
+                <span className="zeus-label">
                   Operator
                 </span>
                 <RoleBadge active={roles.isOperator} />
               </div>
               <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm font-medium text-slate-700">
-                  Buyer
+                <span className="zeus-label">
+                  Subscriber
                 </span>
                 <RoleBadge active={roles.isBuyer} />
               </div>
@@ -293,12 +282,12 @@ export default function AdminPage() {
 
 function RoleBadge({ active }: { active: boolean }) {
   return active ? (
-    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
       <CheckCircle2 className="w-3 h-3" />
       Granted
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-500">
+    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-zeus-stone-100 text-zeus-stone-500 border border-zeus-stone-200">
       <AlertCircle className="w-3 h-3" />
       Not Assigned
     </span>

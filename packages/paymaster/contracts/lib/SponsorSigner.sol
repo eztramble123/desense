@@ -28,7 +28,7 @@ library SponsorSigner {
         return keccak256(
             abi.encode(
                 DOMAIN_TYPEHASH,
-                keccak256("DeSensePaymaster"),
+                keccak256("ZeusPaymaster"),
                 keccak256("1"),
                 block.chainid,
                 verifyingContract

@@ -20,25 +20,25 @@ export function OutputChart({ data, height = 300 }: OutputChartProps) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={formatted}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-        <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} />
-        <YAxis stroke="#94a3b8" fontSize={12} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#E8E6DF" />
+        <XAxis dataKey="time" stroke="#A8A295" fontSize={12} />
+        <YAxis stroke="#A8A295" fontSize={12} />
         <Tooltip
           contentStyle={{
-            backgroundColor: "#1e293b",
-            border: "none",
+            backgroundColor: "#1A1714",
+            border: "1px solid #3D3832",
             borderRadius: "8px",
-            color: "#f1f5f9",
+            color: "#F5F5F0",
             fontSize: "12px",
           }}
         />
         <Line
           type="monotone"
           dataKey="output"
-          stroke="#2563eb"
+          stroke="#B8860B"
           strokeWidth={2}
           dot={false}
-          name="Output (kWh)"
+          name="Generation (kWh)"
         />
       </LineChart>
     </ResponsiveContainer>

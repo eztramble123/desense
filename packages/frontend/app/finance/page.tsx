@@ -21,8 +21,8 @@ function TriggerRow({ triggerId }: { triggerId: bigint }) {
 
   if (!trigger) {
     return (
-      <tr className="border-b border-slate-100">
-        <td colSpan={8} className="px-4 py-3 text-slate-400 text-sm">
+      <tr>
+        <td colSpan={8} className="px-4 py-3 text-zeus-stone-400 text-sm">
           Loading trigger #{triggerId.toString()}...
         </td>
       </tr>
@@ -30,31 +30,31 @@ function TriggerRow({ triggerId }: { triggerId: bigint }) {
   }
 
   return (
-    <tr className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-      <td className="px-4 py-3 text-sm font-medium text-slate-900">
+    <tr className="hover:bg-zeus-stone-50 transition-colors">
+      <td className="px-4 py-3 border-b border-zeus-stone-100 text-sm font-medium text-zeus-stone-800">
         #{triggerId.toString()}
       </td>
-      <td className="px-4 py-3 text-sm text-slate-700">
+      <td className="px-4 py-3 border-b border-zeus-stone-100 text-sm text-zeus-stone-700">
         #{trigger.deviceId}
       </td>
-      <td className="px-4 py-3 text-sm text-slate-700">
+      <td className="px-4 py-3 border-b border-zeus-stone-100 text-sm text-zeus-stone-700">
         {trigger.triggerTypeName}
       </td>
-      <td className="px-4 py-3 text-sm text-slate-700 font-mono">
+      <td className="px-4 py-3 border-b border-zeus-stone-100 text-sm text-zeus-stone-700 font-mono">
         {trigger.threshold}
       </td>
-      <td className="px-4 py-3 text-sm text-slate-700">
+      <td className="px-4 py-3 border-b border-zeus-stone-100 text-sm text-zeus-stone-700">
         <span className="font-medium">{trigger.currentStreak}</span>
-        <span className="text-slate-400"> / {trigger.requiredStreak}</span>
+        <span className="text-zeus-stone-400"> / {trigger.requiredStreak}</span>
       </td>
-      <td className="px-4 py-3 text-sm">
+      <td className="px-4 py-3 border-b border-zeus-stone-100 text-sm">
         <StatusBadge status={trigger.statusName} />
       </td>
-      <td className="px-4 py-3 text-sm text-slate-700">
+      <td className="px-4 py-3 border-b border-zeus-stone-100 text-sm text-zeus-stone-700">
         <span className="font-mono">{trigger.escrowedPayoutFormatted}</span>{" "}
-        <span className="text-slate-400">ADI</span>
+        <span className="text-zeus-stone-400">ADI</span>
       </td>
-      <td className="px-4 py-3 text-sm">
+      <td className="px-4 py-3 border-b border-zeus-stone-100 text-sm">
         <AddressLink address={trigger.beneficiary} />
       </td>
     </tr>
@@ -70,26 +70,21 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Finance Overview
+          <h1 className="zeus-heading text-2xl text-zeus-stone-900">
+            Performance Triggers
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Monitor performance-based financing triggers and payouts
+          <p className="text-sm text-zeus-stone-500 mt-1">
+            Monitor performance-based incentive triggers and payouts
           </p>
         </div>
-        <Link
-          href="/finance/create-trigger"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-        >
+        <Link href="/finance/create-trigger" className="zeus-btn-primary">
           <Plus className="w-4 h-4" />
           Create Trigger
         </Link>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 gap-4">
         <StatCard
           label="Active Triggers"
@@ -104,27 +99,26 @@ export default function FinancePage() {
         />
       </div>
 
-      {/* Triggers Table */}
-      <div className="bg-white rounded-xl border border-slate-200">
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+      <div className="zeus-card">
+        <div className="px-6 py-4 border-b border-zeus-stone-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-slate-400" />
-            <h2 className="text-lg font-semibold text-slate-900">
+            <Zap className="w-5 h-5 text-zeus-gold" />
+            <h2 className="zeus-heading text-sm text-zeus-stone-800">
               All Triggers
             </h2>
           </div>
-          <span className="text-sm text-slate-400">
+          <span className="zeus-label">
             {triggerCount} total
           </span>
         </div>
 
         {triggerCount === 0 ? (
           <div className="text-center py-16">
-            <Target className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-400 text-sm">No triggers created yet</p>
+            <Target className="w-10 h-10 text-zeus-stone-300 mx-auto mb-3" />
+            <p className="text-zeus-stone-400 text-sm">No triggers created yet</p>
             <Link
               href="/finance/create-trigger"
-              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm mt-2"
+              className="inline-flex items-center gap-1 text-zeus-gold hover:text-zeus-gold-dark text-sm mt-2"
             >
               Create your first trigger
               <ArrowRight className="w-3 h-3" />
@@ -132,33 +126,17 @@ export default function FinancePage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm zeus-table">
               <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="text-left px-4 py-3 text-slate-500 font-medium">
-                    ID
-                  </th>
-                  <th className="text-left px-4 py-3 text-slate-500 font-medium">
-                    Device
-                  </th>
-                  <th className="text-left px-4 py-3 text-slate-500 font-medium">
-                    Type
-                  </th>
-                  <th className="text-left px-4 py-3 text-slate-500 font-medium">
-                    Threshold
-                  </th>
-                  <th className="text-left px-4 py-3 text-slate-500 font-medium">
-                    Streak
-                  </th>
-                  <th className="text-left px-4 py-3 text-slate-500 font-medium">
-                    Status
-                  </th>
-                  <th className="text-left px-4 py-3 text-slate-500 font-medium">
-                    Payout
-                  </th>
-                  <th className="text-left px-4 py-3 text-slate-500 font-medium">
-                    Beneficiary
-                  </th>
+                <tr>
+                  <th>ID</th>
+                  <th>Asset</th>
+                  <th>Type</th>
+                  <th>Threshold</th>
+                  <th>Streak</th>
+                  <th>Status</th>
+                  <th>Payout</th>
+                  <th>Beneficiary</th>
                 </tr>
               </thead>
               <tbody>

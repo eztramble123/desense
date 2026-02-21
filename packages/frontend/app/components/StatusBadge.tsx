@@ -1,23 +1,25 @@
 import clsx from "clsx";
 
 const STATUS_STYLES: Record<string, string> = {
-  Active: "bg-green-100 text-green-700",
-  Open: "bg-blue-100 text-blue-700",
-  Pending: "bg-yellow-100 text-yellow-700",
-  Suspended: "bg-red-100 text-red-700",
-  Decommissioned: "bg-slate-100 text-slate-500",
-  Completed: "bg-slate-100 text-slate-700",
-  Cancelled: "bg-red-100 text-red-600",
-  Triggered: "bg-purple-100 text-purple-700",
-  Expired: "bg-orange-100 text-orange-700",
+  Active: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Verified: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Open: "bg-amber-50 text-amber-700 border-amber-200",
+  Pending: "bg-amber-50 text-amber-700 border-amber-200",
+  Suspended: "bg-red-50 text-red-700 border-red-200",
+  Failed: "bg-red-50 text-red-700 border-red-200",
+  Decommissioned: "bg-zeus-stone-100 text-zeus-stone-500 border-zeus-stone-200",
+  Completed: "bg-zeus-stone-100 text-zeus-stone-600 border-zeus-stone-200",
+  Cancelled: "bg-red-50 text-red-600 border-red-200",
+  Triggered: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Expired: "bg-zeus-stone-100 text-zeus-stone-500 border-zeus-stone-200",
 };
 
 export function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={clsx(
-        "inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium",
-        STATUS_STYLES[status] || "bg-slate-100 text-slate-600"
+        "inline-flex px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border rotate-[-0.5deg]",
+        STATUS_STYLES[status] || "bg-zeus-stone-100 text-zeus-stone-600 border-zeus-stone-200"
       )}
     >
       {status}

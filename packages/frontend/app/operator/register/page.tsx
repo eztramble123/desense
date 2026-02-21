@@ -7,15 +7,15 @@ import { RoleGuard } from "../../components/RoleGuard";
 import { TxLink } from "../../components/TxLink";
 import { useRegisterDevice, DEVICE_TYPES } from "../../hooks/useContracts";
 
-export default function RegisterDevicePage() {
+export default function RegisterAssetPage() {
   return (
     <RoleGuard role="operator">
-      <RegisterDeviceForm />
+      <RegisterAssetForm />
     </RoleGuard>
   );
 }
 
-function RegisterDeviceForm() {
+function RegisterAssetForm() {
   const { register, isPending, isConfirming, isSuccess, hash } =
     useRegisterDevice();
 
@@ -42,64 +42,56 @@ function RegisterDeviceForm() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* Back Link */}
       <Link
         href="/operator"
-        className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors"
+        className="inline-flex items-center gap-2 text-sm text-zeus-stone-500 hover:text-zeus-stone-700 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to Operator Dashboard
+        Back to Generation Assets
       </Link>
 
-      {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">
-          Register New Device
+        <h1 className="zeus-heading text-2xl text-zeus-stone-900">
+          Register Asset
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Register an energy sensing device on the DeSense network
+        <p className="text-sm text-zeus-stone-500 mt-1">
+          Register an energy generation asset on the Zeus network
         </p>
       </div>
 
-      {/* Success State */}
       {isSuccess && hash ? (
-        <div className="bg-white rounded-xl border border-slate-200 p-8 text-center space-y-4">
-          <div className="inline-flex p-3 bg-green-50 rounded-full">
-            <CheckCircle2 className="w-8 h-8 text-green-600" />
+        <div className="zeus-card p-8 text-center space-y-4">
+          <div className="inline-flex p-3 bg-emerald-50 rounded-full border border-emerald-200">
+            <CheckCircle2 className="w-8 h-8 text-emerald-600" />
           </div>
-          <h2 className="text-xl font-semibold text-slate-900">
-            Device Registered Successfully
+          <h2 className="zeus-heading text-lg text-zeus-stone-900">
+            Asset Registered Successfully
           </h2>
-          <p className="text-sm text-slate-500">
-            Your device has been registered on-chain and is pending activation.
+          <p className="text-sm text-zeus-stone-500">
+            Your generation asset has been registered on-chain and is pending activation.
           </p>
           <div className="pt-2">
             <TxLink hash={hash} label="View Transaction" />
           </div>
           <div className="pt-4">
-            <Link
-              href="/operator"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            <Link href="/operator" className="zeus-btn-primary">
               Return to Dashboard
             </Link>
           </div>
         </div>
       ) : (
-        /* Registration Form */
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-200"
+          className="zeus-card divide-y divide-zeus-stone-200"
         >
-          {/* Device Type */}
           <div className="p-6 space-y-2">
-            <label className="block text-sm font-medium text-slate-700">
-              Device Type
+            <label className="zeus-label">
+              Asset Type
             </label>
             <select
               value={deviceType}
               onChange={(e) => setDeviceType(Number(e.target.value))}
-              className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="zeus-input"
             >
               {DEVICE_TYPES.map((type, index) => (
                 <option key={index} value={index}>
@@ -107,14 +99,13 @@ function RegisterDeviceForm() {
                 </option>
               ))}
             </select>
-            <p className="text-xs text-slate-400">
-              Select the type of energy sensing device
+            <p className="text-xs text-zeus-stone-400">
+              Select the type of energy generation asset
             </p>
           </div>
 
-          {/* Location */}
           <div className="p-6 space-y-2">
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="zeus-label">
               Location
             </label>
             <input
@@ -123,16 +114,15 @@ function RegisterDeviceForm() {
               onChange={(e) => setLocation(e.target.value)}
               placeholder="e.g. 37.7749,-122.4194"
               required
-              className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="zeus-input"
             />
-            <p className="text-xs text-slate-400">
-              GPS coordinates or physical address of the device
+            <p className="text-xs text-zeus-stone-400">
+              GPS coordinates or physical address of the asset
             </p>
           </div>
 
-          {/* Region */}
           <div className="p-6 space-y-2">
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="zeus-label">
               Region
             </label>
             <input
@@ -141,17 +131,16 @@ function RegisterDeviceForm() {
               onChange={(e) => setRegion(e.target.value)}
               placeholder="e.g. US-WEST, EU-CENTRAL"
               required
-              className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="zeus-input"
             />
-            <p className="text-xs text-slate-400">
-              Data region identifier for marketplace matching
+            <p className="text-xs text-zeus-stone-400">
+              Grid region identifier for subscription matching
             </p>
           </div>
 
-          {/* Min Output */}
           <div className="p-6 space-y-2">
-            <label className="block text-sm font-medium text-slate-700">
-              Minimum Output
+            <label className="zeus-label">
+              Min Generation (kWh)
             </label>
             <input
               type="number"
@@ -160,17 +149,16 @@ function RegisterDeviceForm() {
               placeholder="0"
               required
               min="0"
-              className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="zeus-input"
             />
-            <p className="text-xs text-slate-400">
-              Minimum expected output value (e.g. watts)
+            <p className="text-xs text-zeus-stone-400">
+              Minimum expected generation output
             </p>
           </div>
 
-          {/* Max Output */}
           <div className="p-6 space-y-2">
-            <label className="block text-sm font-medium text-slate-700">
-              Maximum Output
+            <label className="zeus-label">
+              Max Generation (kWh)
             </label>
             <input
               type="number"
@@ -179,16 +167,15 @@ function RegisterDeviceForm() {
               placeholder="1000"
               required
               min="0"
-              className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="zeus-input"
             />
-            <p className="text-xs text-slate-400">
-              Maximum expected output value (e.g. watts)
+            <p className="text-xs text-zeus-stone-400">
+              Rated capacity / maximum generation output
             </p>
           </div>
 
-          {/* Sampling Rate */}
           <div className="p-6 space-y-2">
-            <label className="block text-sm font-medium text-slate-700">
+            <label className="zeus-label">
               Sampling Rate (seconds)
             </label>
             <input
@@ -198,19 +185,18 @@ function RegisterDeviceForm() {
               placeholder="300"
               required
               min="1"
-              className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="zeus-input"
             />
-            <p className="text-xs text-slate-400">
-              How often the device samples data, in seconds
+            <p className="text-xs text-zeus-stone-400">
+              How often the smart meter samples generation data
             </p>
           </div>
 
-          {/* Submit */}
           <div className="p-6">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="zeus-btn-primary w-full py-3"
             >
               {isPending ? (
                 <>
@@ -223,7 +209,7 @@ function RegisterDeviceForm() {
                   Confirming Transaction...
                 </>
               ) : (
-                "Register Device"
+                "Register Asset"
               )}
             </button>
           </div>

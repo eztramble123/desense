@@ -13,7 +13,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   // 1. Deploy MockERC20
   const mockTokenArtifact = await deployer.loadArtifact("MockERC20");
-  const mockToken = await deployer.deploy(mockTokenArtifact, ["DeSense Test USDC", "dsUSDC"]);
+  const mockToken = await deployer.deploy(mockTokenArtifact, ["Zeus Test USDC", "zUSDC"]);
   const mockTokenAddr = await mockToken.getAddress();
   console.log("MockERC20 deployed to:", mockTokenAddr);
 

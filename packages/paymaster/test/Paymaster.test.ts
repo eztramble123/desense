@@ -6,7 +6,7 @@ import { Wallet, Provider } from "zksync-ethers";
 
 // EIP-712 domain and types for sponsor signature generation
 const EIP712_DOMAIN = {
-  name: "DeSensePaymaster",
+  name: "ZeusPaymaster",
   version: "1",
 };
 

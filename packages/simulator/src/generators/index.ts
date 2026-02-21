@@ -9,7 +9,7 @@ import { generateTransformerReadings } from "./transformer";
 import { generateWindReadings } from "./wind";
 import { SensorReading } from "./solar";
 
-// DeviceType enum matches contract: 0=Solar, 1=PowerMeter, 2=Transformer, 3=Wind
+// DeviceType enum matches contract: 0=SolarArray, 1=WindTurbine, 2=HydroTurbine, 3=SmartMeter
 export function generateReadings(deviceType: number, count: number, intervalSeconds: number): SensorReading[] {
   switch (deviceType) {
     case 0: return generateSolarReadings(count, intervalSeconds);

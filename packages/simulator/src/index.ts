@@ -13,10 +13,10 @@ const MARKETPLACE_ADDR = process.env.NEXT_PUBLIC_DATA_MARKETPLACE!;
 
 // Devices to simulate (populated during seed)
 const DEVICES = [
-  { id: 0, type: 0, name: "Solar Panel #1" },
-  { id: 1, type: 1, name: "Power Meter #1" },
-  { id: 2, type: 2, name: "Transformer #1" },
-  { id: 3, type: 3, name: "Wind Turbine #1" },
+  { id: 0, type: 0, name: "Solar Array #1" },
+  { id: 1, type: 1, name: "Wind Turbine #1" },
+  { id: 2, type: 2, name: "Hydro Turbine #1" },
+  { id: 3, type: 3, name: "Smart Meter #1" },
 ];
 
 const BATCH_INTERVAL_MS = 30_000; // 30 seconds for demo
@@ -60,7 +60,7 @@ async function runBatchCycle(submitter: ChainSubmitter) {
 }
 
 async function main() {
-  console.log("DeSense Simulator Starting...");
+  console.log("Zeus Simulator Starting...");
   console.log(`RPC: ${RPC_URL}`);
   console.log(`Commitment: ${COMMITMENT_ADDR}`);
   console.log(`Trigger: ${TRIGGER_ADDR}`);

@@ -46,22 +46,21 @@ export function DataTable<T extends Record<string, any>>({
 
   if (data.length === 0) {
     return (
-      <div className="text-center py-12 text-slate-400">{emptyMessage}</div>
+      <div className="text-center py-12 text-zeus-stone-400">{emptyMessage}</div>
     );
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+      <table className="w-full text-sm zeus-table">
         <thead>
-          <tr className="border-b border-slate-200">
+          <tr>
             {columns.map((col) => (
               <th
                 key={col.key}
                 onClick={col.sortable ? () => handleSort(col.key) : undefined}
                 className={clsx(
-                  "text-left px-4 py-3 text-slate-500 font-medium",
-                  col.sortable && "cursor-pointer hover:text-slate-700"
+                  col.sortable && "cursor-pointer hover:text-zeus-stone-700"
                 )}
               >
                 {col.header}
@@ -74,12 +73,9 @@ export function DataTable<T extends Record<string, any>>({
         </thead>
         <tbody>
           {sortedData.map((item) => (
-            <tr
-              key={String(item[keyField])}
-              className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
-            >
+            <tr key={String(item[keyField])}>
               {columns.map((col) => (
-                <td key={col.key} className="px-4 py-3 text-slate-700">
+                <td key={col.key}>
                   {col.render ? col.render(item) : String(item[col.key] ?? "")}
                 </td>
               ))}
