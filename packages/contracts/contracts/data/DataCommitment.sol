@@ -2,21 +2,26 @@
 pragma solidity ^0.8.24;
 
 import "../interfaces/IDataCommitment.sol";
-import "../interfaces/IDeSenseAccessControl.sol";
+import "../interfaces/IZeusAccessControl.sol";
 import "../interfaces/IDeviceRegistry.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract DataCommitment is IDataCommitment {
-    IDeSenseAccessControl public accessControl;
+    IZeusAccessControl public accessControl;
     IDeviceRegistry public deviceRegistry;
 
     uint256 public maxSubmissionDelay = 1 hours;
 
-    uint256 private _nextBatchId;
+    // Start from 1 so batchId=0 is never valid (fixes FinancingTrigger guard)
+    uint256 private _nextBatchId = 1;
 
     mapping(uint256 => Batch) private _batches;
     mapping(uint256 => DeviceSLAScore) private _slaScores;
     mapping(uint256 => uint256[]) private _deviceBatches;
+
+    // deviceId => windowStart => true (duplicate window guard)
+    mapping(uint256 => mapping(uint256 => bool)) private _windowUsed;
 
     modifier onlyAdmin() {
         require(accessControl.isAdmin(msg.sender), "DataCommitment: caller is not admin");
@@ -24,7 +29,7 @@ contract DataCommitment is IDataCommitment {
     }
 
     constructor(address _accessControl, address _deviceRegistry) {
-        accessControl = IDeSenseAccessControl(_accessControl);
+        accessControl = IZeusAccessControl(_accessControl);
         deviceRegistry = IDeviceRegistry(_deviceRegistry);
     }
 
@@ -49,6 +54,10 @@ contract DataCommitment is IDataCommitment {
         require(uptimeBps <= 10000, "DataCommitment: uptime exceeds 100%");
         require(dataRoot != bytes32(0), "DataCommitment: empty data root");
 
+        // Duplicate window check
+        require(!_windowUsed[deviceId][windowStart], "DataCommitment: duplicate window");
+        _windowUsed[deviceId][windowStart] = true;
+
         batchId = _nextBatchId++;
 
         _batches[batchId] = Batch({
@@ -60,7 +69,9 @@ contract DataCommitment is IDataCommitment {
             avgOutput: avgOutput,
             uptimeBps: uptimeBps,
             submitter: msg.sender,
-            submittedAt: block.timestamp
+            submittedAt: block.timestamp,
+            disputed: false,
+            disputeReason: ""
         });
 
         _deviceBatches[deviceId].push(batchId);
@@ -75,9 +86,42 @@ contract DataCommitment is IDataCommitment {
         // Freshness penalty
         if (block.timestamp > windowEnd + maxSubmissionDelay) {
             sla.freshnessPenalties++;
+            uint256 delay = block.timestamp - windowEnd;
+            emit FreshnessPenalty(deviceId, batchId, delay);
         }
 
         emit BatchSubmitted(batchId, deviceId, dataRoot, ipfsCid, avgOutput, uptimeBps);
+    }
+
+    function verifyReading(
+        uint256 batchId,
+        bytes32[] calldata proof,
+        bytes32 leaf
+    ) external view returns (bool) {
+        require(batchId > 0 && batchId < _nextBatchId, "DataCommitment: batch does not exist");
+        Batch storage batch = _batches[batchId];
+        return MerkleProof.verify(proof, batch.dataRoot, leaf);
+    }
+
+    function disputeBatch(uint256 batchId, string calldata reason) external {
+        require(accessControl.isAuditor(msg.sender), "DataCommitment: caller is not auditor");
+        require(batchId > 0 && batchId < _nextBatchId, "DataCommitment: batch does not exist");
+
+        Batch storage batch = _batches[batchId];
+        require(!batch.disputed, "DataCommitment: already disputed");
+
+        batch.disputed = true;
+        batch.disputeReason = reason;
+
+        // Revert SLA contribution
+        DeviceSLAScore storage sla = _slaScores[batch.deviceId];
+        if (sla.totalBatches > 0) {
+            sla.totalBatches--;
+            sla.cumulativeUptime -= batch.uptimeBps;
+            sla.cumulativeOutput -= batch.avgOutput;
+        }
+
+        emit BatchDisputed(batchId, msg.sender, reason);
     }
 
     function setMaxSubmissionDelay(uint256 _delay) external onlyAdmin {
@@ -85,7 +129,7 @@ contract DataCommitment is IDataCommitment {
     }
 
     function getBatch(uint256 batchId) external view returns (Batch memory) {
-        require(batchId < _nextBatchId, "DataCommitment: batch does not exist");
+        require(batchId > 0 && batchId < _nextBatchId, "DataCommitment: batch does not exist");
         return _batches[batchId];
     }
 
@@ -122,6 +166,7 @@ contract DataCommitment is IDataCommitment {
     }
 
     function totalBatches() external view returns (uint256) {
-        return _nextBatchId;
+        // Subtract 1 since _nextBatchId starts at 1
+        return _nextBatchId - 1;
     }
 }

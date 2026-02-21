@@ -2,13 +2,13 @@
 pragma solidity ^0.8.24;
 
 import "../interfaces/IDataMarketplace.sol";
-import "../interfaces/IDeSenseAccessControl.sol";
+import "../interfaces/IZeusAccessControl.sol";
 import "../interfaces/IDeviceRegistry.sol";
 import "../interfaces/IDataCommitment.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 contract DataMarketplace is IDataMarketplace {
-    IDeSenseAccessControl public accessControl;
+    IZeusAccessControl public accessControl;
     IDeviceRegistry public deviceRegistry;
     IDataCommitment public dataCommitment;
 
@@ -25,7 +25,7 @@ contract DataMarketplace is IDataMarketplace {
     }
 
     constructor(address _accessControl, address _deviceRegistry, address _dataCommitment) {
-        accessControl = IDeSenseAccessControl(_accessControl);
+        accessControl = IZeusAccessControl(_accessControl);
         deviceRegistry = IDeviceRegistry(_deviceRegistry);
         dataCommitment = IDataCommitment(_dataCommitment);
     }
@@ -101,6 +101,7 @@ contract DataMarketplace is IDataMarketplace {
 
         IDataCommitment.Batch memory batch = dataCommitment.getBatch(batchId);
 
+        require(!batch.disputed, "DataMarketplace: batch is disputed");
         require(_deviceInOrder[orderId][batch.deviceId], "DataMarketplace: device not in order");
         require(batch.uptimeBps >= order.minUptimeBps, "DataMarketplace: uptime below threshold");
         require(batch.avgOutput >= order.minAvgOutput, "DataMarketplace: output below threshold");

@@ -2,9 +2,9 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "../interfaces/IDeSenseAccessControl.sol";
+import "../interfaces/IZeusAccessControl.sol";
 
-contract DeSenseAccessControl is AccessControl, IDeSenseAccessControl {
+contract ZeusAccessControl is AccessControl, IZeusAccessControl {
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     bytes32 public constant BUYER_ROLE = keccak256("BUYER_ROLE");
     bytes32 public constant AUDITOR_ROLE = keccak256("AUDITOR_ROLE");

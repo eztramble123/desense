@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 interface IDeviceRegistry {
-    enum DeviceType { SolarPanel, PowerMeter, Transformer, WindTurbine }
+    enum DeviceType { SolarArray, WindTurbine, HydroTurbine, SmartMeter }
     enum DeviceStatus { Pending, Active, Suspended, Decommissioned }
 
     struct DeviceMetadata {
@@ -15,6 +15,9 @@ interface IDeviceRegistry {
         uint256 samplingRateSeconds;
         address operator;
         uint256 registeredAt;
+        uint256 capacity;       // rated capacity in watts
+        int256 latitude;        // fixed-point * 1e6 (e.g. 25204800 = 25.2048)
+        int256 longitude;       // fixed-point * 1e6 (e.g. 55270800 = 55.2708)
     }
 
     event DeviceRegistered(uint256 indexed deviceId, address indexed operator, DeviceType deviceType, string region);
@@ -26,7 +29,10 @@ interface IDeviceRegistry {
         string calldata region,
         uint256 minOutput,
         uint256 maxOutput,
-        uint256 samplingRateSeconds
+        uint256 samplingRateSeconds,
+        uint256 capacity,
+        int256 latitude,
+        int256 longitude
     ) external returns (uint256 deviceId);
 
     function setDeviceStatus(uint256 deviceId, DeviceStatus newStatus) external;
