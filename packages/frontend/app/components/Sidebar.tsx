@@ -10,6 +10,7 @@ import {
   TrendingUp,
   Zap,
   Fuel,
+  Database,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { href: "/finance", label: "Performance Triggers", icon: TrendingUp },
   { href: "/admin", label: "Administration", icon: Shield },
   { href: "/admin/paymaster", label: "Gas Sponsorship", icon: Fuel },
+  { href: "/data", label: "Sample Data", icon: Database },
 ];
 
 export function Sidebar() {
