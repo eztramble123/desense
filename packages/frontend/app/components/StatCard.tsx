@@ -8,8 +8,13 @@ export function StatCard({ label, value, sub }: StatCardProps) {
   return (
     <div className="flex flex-col gap-1.5">
       <p className="label">{label}</p>
-      <p className="text-2xl font-semibold tracking-tight text-white">{value}</p>
-      {sub && <p className="text-[11px] text-[#4b4b58]">{sub}</p>}
+      <p
+        className="text-3xl font-black uppercase tracking-tight text-white leading-none"
+        style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
+      >
+        {value}
+      </p>
+      {sub && <p className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.35)" }}>{sub}</p>}
     </div>
   );
 }

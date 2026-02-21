@@ -1,37 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: #0c0c0f;
-  --surface: #111115;
-  --surface-2: #16161b;
-  --border: #1f1f27;
-  --text: #ffffff;
-  --muted: #4b4b58;
-  --accent: #f59e0b;
+  --bg:        #04091c;
+  --surface:   #0a1530;
+  --surface-2: #0f1e42;
+  --border:    #152046;
+  --text:      #ffffff;
+  --muted:     rgba(255,255,255,0.38);
+  --accent:    #2563eb;
+  --accent-2:  #1d4ed8;
 }
 
 body {
   color: var(--text);
   background: var(--bg);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: 'Barlow', var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
 @layer components {
   .label {
-    @apply text-[11px] font-medium uppercase tracking-[0.1em] text-[#4b4b58];
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em];
+    color: var(--muted);
+  }
+
+  .panel {
+    @apply rounded-xl border;
+    background: var(--surface);
+    border-color: var(--border);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded text-[13px] font-semibold uppercase tracking-wider text-white transition-colors;
+    font-family: 'Barlow Condensed', sans-serif;
+    background: var(--accent);
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-2);
   }
 
   .z-table th {
-    @apply text-left px-4 py-3 text-[11px] font-medium uppercase tracking-[0.08em] text-[#4b4b58];
-    border-bottom: 1px solid #1f1f27;
+    @apply text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.1em];
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
   }
 
   .z-table td {
-    @apply px-4 py-3 text-[13px] text-white/60;
-    border-bottom: 1px solid #16161b;
+    @apply px-4 py-3 text-[13px];
+    color: rgba(255,255,255,0.7);
+    border-bottom: 1px solid var(--surface-2);
   }
 
   .z-table tbody tr:last-child td {
@@ -39,6 +61,7 @@ body {
   }
 
   .z-table tbody tr:hover td {
-    @apply text-white/90 bg-[#111115];
+    background: var(--surface-2);
+    color: #fff;
   }
 }

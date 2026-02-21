@@ -9,18 +9,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        zeus: {
-          gold: "#f59e0b",
-          bg: "#0c0c0f",
-          surface: "#111115",
-          "surface-2": "#16161b",
-          border: "#1f1f27",
-          muted: "#4b4b58",
+        adi: {
+          bg:       "#04091c",
+          surface:  "#0a1530",
+          surface2: "#0f1e42",
+          border:   "#152046",
+          blue:     "#2563eb",
+          "blue-2": "#1d4ed8",
+          muted:    "rgba(255,255,255,0.38)",
         },
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        display:  ["'Barlow Condensed'", "sans-serif"],
+        sans:     ["'Barlow'", "var(--font-geist-sans)", "system-ui", "sans-serif"],
+        mono:     ["var(--font-geist-mono)", "ui-monospace", "monospace"],
       },
     },
   },

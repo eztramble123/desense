@@ -8,7 +8,7 @@ export function TxLink({ hash, label }: { hash: string; label?: string }) {
       href={`${EXPLORER}/tx/${hash}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 text-[#f59e0b] hover:text-[#fbbf24] text-[13px] font-mono transition-colors"
+      className="inline-flex items-center gap-1 text-[#2563eb] hover:text-[#60a5fa] text-[13px] font-mono transition-colors"
     >
       {label ?? `${hash.slice(0, 8)}…${hash.slice(-6)}`}
       <ExternalLink className="w-3 h-3" />
@@ -22,7 +22,7 @@ export function AddressLink({ address, label }: { address: string; label?: strin
       href={`${EXPLORER}/address/${address}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 text-[#f59e0b] hover:text-[#fbbf24] text-[13px] font-mono transition-colors"
+      className="inline-flex items-center gap-1 text-[#2563eb] hover:text-[#60a5fa] text-[13px] font-mono transition-colors"
     >
       {label ?? `${address.slice(0, 6)}…${address.slice(-4)}`}
       <ExternalLink className="w-3 h-3" />
