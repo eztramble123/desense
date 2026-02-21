@@ -3,13 +3,12 @@
 import { useState } from "react";
 import clsx from "clsx";
 import { OutputChart } from "../components/OutputChart";
-import { StatCard } from "../components/StatCard";
 import { SAMPLE_ASSETS, SAMPLE_ASSET_READINGS, SAMPLE_STATS } from "../data/sample";
 
 const DISPLAY_FONT = { fontFamily: "'Barlow Condensed', sans-serif" };
 
-const TYPE_OPTIONS   = ["All", "Solar Array", "Wind Turbine", "Hydro Turbine", "Smart Meter"];
-const REGION_OPTIONS = ["All", "MENA-UAE", "MENA-KSA", "EU-DE", "EU-ES"];
+const TYPE_OPTIONS   = ["All", "Residential", "Commercial"];
+const REGION_OPTIONS = ["All", "Middle East", "Europe", "North America", "Asia Pacific"];
 
 function FilterBar({ label, options, value, onChange }: {
   label: string; options: string[]; value: string; onChange: (v: string) => void;
@@ -35,6 +34,18 @@ function FilterBar({ label, options, value, onChange }: {
   );
 }
 
+function StatBox({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+  return (
+    <div className="bg-[#0a1530] border border-[#152046] rounded-xl p-6 flex flex-col items-center justify-center text-center gap-1.5">
+      <p className="label">{label}</p>
+      <p className="text-3xl font-black uppercase tracking-tight leading-none text-white" style={DISPLAY_FONT}>
+        {value}
+      </p>
+      {sub && <p className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.3)" }}>{sub}</p>}
+    </div>
+  );
+}
+
 export default function AnalyticsPage() {
   const [type, setType]     = useState("All");
   const [region, setRegion] = useState("All");
@@ -44,13 +55,11 @@ export default function AnalyticsPage() {
     (region === "All" || a.region === region)
   );
 
-  // Aggregate stats across filtered assets
-  const totalGen   = filtered.reduce((s, a) => s + a.totalGenerationKwh, 0);
-  const avgCF      = filtered.length ? filtered.reduce((s, a) => s + a.capacityFactor, 0) / filtered.length : 0;
-  const avgUptime  = filtered.length ? filtered.reduce((s, a) => s + a.sla.avgUptime, 0) / filtered.length : 0;
+  const totalGen     = filtered.reduce((s, a) => s + a.totalGenerationKwh, 0);
+  const avgCF        = filtered.length ? filtered.reduce((s, a) => s + a.capacityFactor, 0) / filtered.length : 0;
+  const avgUptime    = filtered.length ? filtered.reduce((s, a) => s + a.sla.avgUptime, 0) / filtered.length : 0;
   const totalBatches = filtered.reduce((s, a) => s + a.sla.totalBatches, 0);
 
-  // Combined chart: sum outputs across filtered assets per timestamp slot
   const chartData = filtered.length
     ? SAMPLE_ASSET_READINGS[filtered[0].id].map((_, i) => ({
         timestamp: SAMPLE_ASSET_READINGS[filtered[0].id][i].timestamp,
@@ -83,12 +92,12 @@ export default function AnalyticsPage() {
         </div>
       ) : (
         <>
-          {/* Aggregated stats */}
-          <div className="panel p-8 grid grid-cols-4 gap-8">
-            <StatCard label="Assets"           value={filtered.length}                          sub={`of ${SAMPLE_STATS.totalAssets} total`} />
-            <StatCard label="Total Generation" value={`${(totalGen / 1000).toFixed(1)} MWh`}   sub="lifetime" />
-            <StatCard label="Avg Capacity Factor" value={`${avgCF.toFixed(1)}%`} />
-            <StatCard label="Avg Uptime"        value={`${avgUptime.toFixed(1)}%`}              sub={`${totalBatches} batches`} />
+          {/* Stat boxes — centered, each in own container */}
+          <div className="grid grid-cols-4 gap-4">
+            <StatBox label="Assets"            value={filtered.length}                              sub={`of ${SAMPLE_STATS.totalAssets} total`} />
+            <StatBox label="Total Generation"  value={`${(totalGen / 1000).toFixed(1)} MWh`}        sub="lifetime" />
+            <StatBox label="Avg Capacity Factor" value={`${avgCF.toFixed(1)}%`} />
+            <StatBox label="Avg Uptime"         value={`${avgUptime.toFixed(1)}%`}                  sub={`${totalBatches} batches`} />
           </div>
 
           {/* Chart */}
@@ -120,7 +129,7 @@ export default function AnalyticsPage() {
                   <div key={a.id} className="px-6 py-4 flex items-center gap-6">
                     <div className="flex-1 grid grid-cols-5 gap-4">
                       <div>
-                        <p className="label mb-1">Asset</p>
+                        <p className="label mb-1">Type</p>
                         <p className="text-[13px] text-white/80 font-medium">{a.deviceTypeLabel}</p>
                       </div>
                       <div>
@@ -140,27 +149,27 @@ export default function AnalyticsPage() {
                         <p className="text-[13px] text-white/60">{(peak / 1000).toFixed(1)} kWh</p>
                       </div>
                     </div>
-                    <div className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shrink-0">
+                    <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shrink-0">
                       {a.statusLabel}
-                    </div>
+                    </span>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Network-wide stats */}
+          {/* Network overview */}
           <div className="grid grid-cols-2 gap-6">
             <div className="panel p-6 space-y-4">
               <p className="label">Network · Assets by Type</p>
               {Object.entries(SAMPLE_STATS.assetsByType).map(([t, count]) => (
                 <div key={t} className="flex items-center justify-between">
-                  <span className="text-[13px] text-white/60">{t.replace(/([A-Z])/g, " $1").trim()}</span>
+                  <span className="text-[13px] text-white/60">{t}</span>
                   <div className="flex items-center gap-3">
                     <div className="w-24 h-1 rounded-full bg-[#152046] overflow-hidden">
                       <div className="h-full bg-[#2563eb] rounded-full" style={{ width: `${(count / SAMPLE_STATS.totalAssets) * 100}%` }} />
                     </div>
-                    <span className="text-[13px] font-mono text-white/40 w-4 text-right">{count}</span>
+                    <span className="text-[13px] font-mono text-white/40 w-6 text-right">{count}</span>
                   </div>
                 </div>
               ))}
@@ -170,11 +179,11 @@ export default function AnalyticsPage() {
               <p className="label">Network · Last 24h</p>
               {[
                 ["Batches Submitted",    SAMPLE_STATS.last24h.batchesSubmitted],
-                ["Generation",          `${(SAMPLE_STATS.last24h.generationKwh / 1000).toFixed(1)} MWh`],
-                ["Verifications",        SAMPLE_STATS.last24h.verificationsPerformed],
-                ["Total Batches",        SAMPLE_STATS.totalBatches.toLocaleString()],
-                ["Disputed Batches",     SAMPLE_STATS.disputedBatches],
-                ["Avg Capacity Factor", `${SAMPLE_STATS.avgCapacityFactor}%`],
+                ["Generation",           `${(SAMPLE_STATS.last24h.generationKwh / 1000).toFixed(1)} MWh`],
+                ["Verifications",         SAMPLE_STATS.last24h.verificationsPerformed],
+                ["Total Batches",         SAMPLE_STATS.totalBatches.toLocaleString()],
+                ["Disputed Batches",      SAMPLE_STATS.disputedBatches],
+                ["Avg Capacity Factor",  `${SAMPLE_STATS.avgCapacityFactor}%`],
               ].map(([label, value]) => (
                 <div key={label} className="flex items-center justify-between">
                   <span className="text-[13px] text-white/40">{label}</span>
