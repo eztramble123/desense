@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Contract, Signer } from "ethers";
 
-describe("DeSense Protocol", function () {
+describe("Zeus Protocol", function () {
   let accessControl: Contract;
   let registry: Contract;
   let commitment: Contract;
@@ -12,20 +12,23 @@ describe("DeSense Protocol", function () {
   let admin: Signer;
   let operator: Signer;
   let buyer: Signer;
+  let auditor: Signer;
   let other: Signer;
 
   let adminAddr: string;
   let operatorAddr: string;
   let buyerAddr: string;
+  let auditorAddr: string;
 
   beforeEach(async function () {
-    [admin, operator, buyer, other] = await ethers.getSigners();
+    [admin, operator, buyer, auditor, other] = await ethers.getSigners();
     adminAddr = await admin.getAddress();
     operatorAddr = await operator.getAddress();
     buyerAddr = await buyer.getAddress();
+    auditorAddr = await auditor.getAddress();
 
     // Deploy AccessControl
-    const AccessControl = await ethers.getContractFactory("DeSenseAccessControl");
+    const AccessControl = await ethers.getContractFactory("ZeusAccessControl");
     accessControl = await AccessControl.deploy(adminAddr);
     const acAddr = await accessControl.getAddress();
 
@@ -50,6 +53,7 @@ describe("DeSense Protocol", function () {
     // Grant roles
     await accessControl.grantOperatorRole(operatorAddr);
     await accessControl.grantBuyerRole(buyerAddr);
+    await accessControl.grantAuditorRole(auditorAddr);
   });
 
   describe("AccessControl", function () {
@@ -63,6 +67,10 @@ describe("DeSense Protocol", function () {
 
     it("should grant and check buyer role", async function () {
       expect(await accessControl.isBuyer(buyerAddr)).to.be.true;
+    });
+
+    it("should grant and check auditor role", async function () {
+      expect(await accessControl.isAuditor(auditorAddr)).to.be.true;
     });
 
     it("should revoke roles", async function () {
@@ -80,12 +88,15 @@ describe("DeSense Protocol", function () {
   describe("DeviceRegistry", function () {
     it("should register a device as operator", async function () {
       const tx = await registry.connect(operator).registerDevice(
-        0, // SolarPanel
-        "25.2048,55.2708",
+        0, // SolarArray
+        "Dubai Solar Park, Block A",
         "MENA-UAE",
         0,
         100,
-        30
+        30,
+        100000,    // 100kW capacity
+        25204800,  // latitude 25.2048
+        55270800   // longitude 55.2708
       );
       await tx.wait();
 
@@ -94,24 +105,27 @@ describe("DeSense Protocol", function () {
       expect(device.region).to.equal("MENA-UAE");
       expect(device.operator).to.equal(operatorAddr);
       expect(device.status).to.equal(1); // Active
+      expect(device.capacity).to.equal(100000);
+      expect(device.latitude).to.equal(25204800);
+      expect(device.longitude).to.equal(55270800);
     });
 
     it("should prevent non-operator from registering", async function () {
       await expect(
-        registry.connect(buyer).registerDevice(0, "loc", "region", 0, 100, 30)
+        registry.connect(buyer).registerDevice(0, "loc", "region", 0, 100, 30, 100000, 0, 0)
       ).to.be.revertedWith("DeviceRegistry: caller is not operator");
     });
 
     it("should allow admin to change device status", async function () {
-      await registry.connect(operator).registerDevice(0, "loc", "MENA-UAE", 0, 100, 30);
+      await registry.connect(operator).registerDevice(0, "loc", "MENA-UAE", 0, 100, 30, 100000, 0, 0);
       await registry.connect(admin).setDeviceStatus(0, 2); // Suspended
       const device = await registry.getDevice(0);
       expect(device.status).to.equal(2);
     });
 
     it("should enumerate devices by operator", async function () {
-      await registry.connect(operator).registerDevice(0, "loc1", "MENA-UAE", 0, 100, 30);
-      await registry.connect(operator).registerDevice(1, "loc2", "MENA-UAE", 0, 500, 60);
+      await registry.connect(operator).registerDevice(0, "loc1", "MENA-UAE", 0, 100, 30, 100000, 0, 0);
+      await registry.connect(operator).registerDevice(1, "loc2", "MENA-UAE", 0, 500, 60, 200000, 0, 0);
       const devices = await registry.getDevicesByOperator(operatorAddr);
       expect(devices.length).to.equal(2);
     });
@@ -119,10 +133,10 @@ describe("DeSense Protocol", function () {
 
   describe("DataCommitment", function () {
     beforeEach(async function () {
-      await registry.connect(operator).registerDevice(0, "loc", "MENA-UAE", 0, 100, 30);
+      await registry.connect(operator).registerDevice(0, "loc", "MENA-UAE", 0, 100, 30, 100000, 0, 0);
     });
 
-    it("should submit a batch", async function () {
+    it("should submit a batch (batchId starts at 1)", async function () {
       const now = Math.floor(Date.now() / 1000);
       const dataRoot = ethers.keccak256(ethers.toUtf8Bytes("test-data"));
 
@@ -130,11 +144,27 @@ describe("DeSense Protocol", function () {
         0, now - 300, now, dataRoot, "QmTestCid", 50, 9500
       );
 
-      const batch = await commitment.getBatch(0);
+      const batch = await commitment.getBatch(1); // batchId=1
       expect(batch.deviceId).to.equal(0);
       expect(batch.avgOutput).to.equal(50);
       expect(batch.uptimeBps).to.equal(9500);
       expect(batch.dataRoot).to.equal(dataRoot);
+      expect(batch.disputed).to.be.false;
+    });
+
+    it("should reject duplicate window", async function () {
+      const now = Math.floor(Date.now() / 1000);
+      const dataRoot = ethers.keccak256(ethers.toUtf8Bytes("test-data"));
+
+      await commitment.connect(operator).submitBatch(
+        0, now - 300, now, dataRoot, "QmTestCid1", 50, 9500
+      );
+
+      await expect(
+        commitment.connect(operator).submitBatch(
+          0, now - 300, now, ethers.keccak256(ethers.toUtf8Bytes("dup")), "QmDup", 50, 9500
+        )
+      ).to.be.revertedWith("DataCommitment: duplicate window");
     });
 
     it("should update SLA score", async function () {
@@ -178,11 +208,71 @@ describe("DeSense Protocol", function () {
       const page2 = await commitment.getDeviceBatches(0, 3, 3);
       expect(page2.length).to.equal(2);
     });
+
+    it("should verify a reading with Merkle proof", async function () {
+      const now = Math.floor(Date.now() / 1000);
+
+      // Create a simple leaf and use it as root (single-leaf tree)
+      const leaf = ethers.keccak256(
+        ethers.AbiCoder.defaultAbiCoder().encode(
+          ["uint256", "uint256", "bool"],
+          [now, 5000, true]
+        )
+      );
+      // For a single-leaf tree, root = leaf, proof = []
+      await commitment.connect(operator).submitBatch(
+        0, now - 300, now, leaf, "QmVerify", 50, 9500
+      );
+
+      const valid = await commitment.verifyReading(1, [], leaf);
+      expect(valid).to.be.true;
+
+      // Invalid leaf should fail
+      const badLeaf = ethers.keccak256(ethers.toUtf8Bytes("bad"));
+      const invalid = await commitment.verifyReading(1, [], badLeaf);
+      expect(invalid).to.be.false;
+    });
+
+    it("should allow auditor to dispute a batch", async function () {
+      const now = Math.floor(Date.now() / 1000);
+      const dataRoot = ethers.keccak256(ethers.toUtf8Bytes("dispute-test"));
+
+      await commitment.connect(operator).submitBatch(
+        0, now - 300, now, dataRoot, "QmDispute", 50, 9500
+      );
+
+      // SLA before dispute
+      let sla = await commitment.getDeviceSLA(0);
+      expect(sla.totalBatches).to.equal(1);
+
+      await commitment.connect(auditor).disputeBatch(1, "Suspicious readings");
+
+      const batch = await commitment.getBatch(1);
+      expect(batch.disputed).to.be.true;
+      expect(batch.disputeReason).to.equal("Suspicious readings");
+
+      // SLA should be decremented
+      sla = await commitment.getDeviceSLA(0);
+      expect(sla.totalBatches).to.equal(0);
+    });
+
+    it("should prevent non-auditor from disputing", async function () {
+      const now = Math.floor(Date.now() / 1000);
+      const dataRoot = ethers.keccak256(ethers.toUtf8Bytes("test"));
+
+      await commitment.connect(operator).submitBatch(
+        0, now - 300, now, dataRoot, "QmTest", 50, 9500
+      );
+
+      await expect(
+        commitment.connect(operator).disputeBatch(1, "fake dispute")
+      ).to.be.revertedWith("DataCommitment: caller is not auditor");
+    });
   });
 
   describe("DataMarketplace", function () {
     beforeEach(async function () {
-      await registry.connect(operator).registerDevice(0, "loc", "MENA-UAE", 0, 100, 30);
+      await registry.connect(operator).registerDevice(0, "loc", "MENA-UAE", 0, 100, 30, 100000, 0, 0);
     });
 
     it("should create an order with escrow", async function () {
@@ -227,10 +317,29 @@ describe("DeSense Protocol", function () {
       );
 
       const balBefore = await ethers.provider.getBalance(operatorAddr);
-      await marketplace.connect(admin).settleBatch(0, 0);
+      await marketplace.connect(admin).settleBatch(0, 1); // batchId=1
       const balAfter = await ethers.provider.getBalance(operatorAddr);
 
       expect(balAfter - balBefore).to.equal(ethers.parseEther("0.01"));
+    });
+
+    it("should not settle a disputed batch", async function () {
+      await marketplace.connect(buyer).createOrder(
+        0, "MENA-UAE", 8000, 30, 86400, ethers.parseEther("0.01"),
+        { value: ethers.parseEther("1") }
+      );
+      await marketplace.connect(operator).matchDevice(0, 0);
+
+      const now = Math.floor(Date.now() / 1000);
+      const dataRoot = ethers.keccak256(ethers.toUtf8Bytes("disputed-settle"));
+      await commitment.connect(operator).submitBatch(
+        0, now - 300, now, dataRoot, "QmDisp", 50, 9500
+      );
+      await commitment.connect(auditor).disputeBatch(1, "Bad data");
+
+      await expect(
+        marketplace.connect(admin).settleBatch(0, 1)
+      ).to.be.revertedWith("DataMarketplace: batch is disputed");
     });
 
     it("should cancel open order and refund", async function () {
@@ -254,7 +363,7 @@ describe("DeSense Protocol", function () {
 
   describe("FinancingTrigger", function () {
     beforeEach(async function () {
-      await registry.connect(operator).registerDevice(0, "loc", "MENA-UAE", 0, 100, 30);
+      await registry.connect(operator).registerDevice(0, "loc", "MENA-UAE", 0, 100, 30, 100000, 0, 0);
     });
 
     it("should create a trigger with escrow", async function () {
@@ -281,7 +390,7 @@ describe("DeSense Protocol", function () {
         0, now - 300, now, dataRoot, "QmEval1", 50, 9500
       );
 
-      await trigger.connect(admin).evaluate(0, 0);
+      await trigger.connect(admin).evaluate(0, 1); // batchId=1
 
       const t = await trigger.getTrigger(0);
       expect(t.currentStreak).to.equal(1);
@@ -300,12 +409,29 @@ describe("DeSense Protocol", function () {
           ethers.keccak256(ethers.toUtf8Bytes(`eval-${i}`)),
           `QmEval${i}`, 50, 9500
         );
-        await trigger.connect(admin).evaluate(0, i);
+        await trigger.connect(admin).evaluate(0, i + 1); // batchIds: 1, 2, 3
       }
 
       const t = await trigger.getTrigger(0);
       expect(t.status).to.equal(1); // Triggered
       expect(t.escrowedPayout).to.equal(0);
+    });
+
+    it("should reject disputed batches in evaluation", async function () {
+      await trigger.connect(admin).createTrigger(
+        operatorAddr, 0, 0, 40, 86400 * 7, 3,
+        { value: ethers.parseEther("0.5") }
+      );
+
+      const now = Math.floor(Date.now() / 1000);
+      await commitment.connect(operator).submitBatch(
+        0, now - 300, now, ethers.keccak256(ethers.toUtf8Bytes("disp")), "QmDisp", 50, 9500
+      );
+      await commitment.connect(auditor).disputeBatch(1, "Bad");
+
+      await expect(
+        trigger.connect(admin).evaluate(0, 1)
+      ).to.be.revertedWith("FinancingTrigger: batch is disputed");
     });
 
     it("should reset streak on non-qualifying batch", async function () {
@@ -315,17 +441,17 @@ describe("DeSense Protocol", function () {
       );
 
       const now = Math.floor(Date.now() / 1000);
-      // Submit qualifying batch
+      // Qualifying batch
       await commitment.connect(operator).submitBatch(
         0, now - 300, now, ethers.keccak256(ethers.toUtf8Bytes("q1")), "QmQ1", 50, 9500
       );
-      await trigger.connect(admin).evaluate(0, 0);
+      await trigger.connect(admin).evaluate(0, 1);
 
-      // Submit non-qualifying batch (output below threshold)
+      // Non-qualifying batch (output below threshold)
       await commitment.connect(operator).submitBatch(
         0, now, now + 300, ethers.keccak256(ethers.toUtf8Bytes("nq")), "QmNQ", 30, 9500
       );
-      await trigger.connect(admin).evaluate(0, 1);
+      await trigger.connect(admin).evaluate(0, 2);
 
       const t = await trigger.getTrigger(0);
       expect(t.currentStreak).to.equal(0);

@@ -18,7 +18,7 @@ async function main() {
   console.log("Seeding demo data with wallet:", wallet.address);
 
   // Get contract instances
-  const accessControl = await ethers.getContractAt("DeSenseAccessControl", addresses.accessControl, wallet as any);
+  const accessControl = await ethers.getContractAt("ZeusAccessControl", addresses.accessControl, wallet as any);
   const registry = await ethers.getContractAt("DeviceRegistry", addresses.registry, wallet as any);
   const commitment = await ethers.getContractAt("DataCommitment", addresses.commitment, wallet as any);
   const marketplace = await ethers.getContractAt("DataMarketplace", addresses.marketplace, wallet as any);
@@ -34,58 +34,70 @@ async function main() {
   await tx.wait();
   console.log("Granted BUYER_ROLE to deployer");
 
-  // 2. Register devices
+  // 2. Register devices (new enum: 0=SolarArray, 1=WindTurbine, 2=HydroTurbine, 3=SmartMeter)
   console.log("\n--- Registering Devices ---");
 
-  // Solar Panel
+  // Solar Array
   tx = await registry.registerDevice(
-    0, // SolarPanel
-    "25.2048,55.2708", // Dubai coordinates
+    0, // SolarArray
+    "Dubai Solar Park, Block A",
     "MENA-UAE",
     0,
-    100, // max 100 kWh
-    30
+    100,   // max 100 kWh
+    30,
+    100000,    // 100kW capacity
+    25204800,  // lat 25.2048
+    55270800   // lng 55.2708
   );
   await tx.wait();
-  console.log("Registered Solar Panel (device 0)");
-
-  // Power Meter
-  tx = await registry.registerDevice(
-    1, // PowerMeter
-    "25.1985,55.2796", // Dubai coordinates
-    "MENA-UAE",
-    0,
-    500,
-    60
-  );
-  await tx.wait();
-  console.log("Registered Power Meter (device 1)");
-
-  // Transformer
-  tx = await registry.registerDevice(
-    2, // Transformer
-    "24.4539,54.3773", // Abu Dhabi
-    "MENA-UAE",
-    0,
-    1000,
-    60
-  );
-  await tx.wait();
-  console.log("Registered Transformer (device 2)");
+  console.log("Registered Solar Array (device 0)");
 
   // Wind Turbine
   tx = await registry.registerDevice(
-    3, // WindTurbine
-    "25.0657,55.1713", // Jebel Ali
+    1, // WindTurbine
+    "Jebel Ali Wind Farm",
     "MENA-UAE",
     0,
     200,
-    30
+    30,
+    200000,    // 200kW capacity
+    25065700,  // lat 25.0657
+    55171300   // lng 55.1713
   );
   await tx.wait();
-  console.log("Registered Wind Turbine (device 3)");
+  console.log("Registered Wind Turbine (device 1)");
 
-  // 3. Submit sample batches
+  // Hydro Turbine
+  tx = await registry.registerDevice(
+    2, // HydroTurbine
+    "Al Ain Hydro Station",
+    "MENA-UAE",
+    0,
+    1000,
+    60,
+    500000,    // 500kW capacity
+    24453900,  // lat 24.4539
+    54377300   // lng 54.3773
+  );
+  await tx.wait();
+  console.log("Registered Hydro Turbine (device 2)");
+
+  // Smart Meter
+  tx = await registry.registerDevice(
+    3, // SmartMeter
+    "DEWA Substation 7",
+    "MENA-UAE",
+    0,
+    500,
+    60,
+    50000,     // 50kW capacity
+    25198500,  // lat 25.1985
+    55279600   // lng 55.2796
+  );
+  await tx.wait();
+  console.log("Registered Smart Meter (device 3)");
+
+  // 3. Submit sample batches (batchIds start at 1)
   console.log("\n--- Submitting Sample Batches ---");
   const now = Math.floor(Date.now() / 1000);
 
@@ -94,7 +106,7 @@ async function main() {
     tx = await commitment.submitBatch(
       i, // deviceId
       now - 300, // 5 min ago
-      now,
+      now - 300 + (i * 300), // stagger windowStart to avoid duplicates across runs
       dataRoot,
       `QmDemo${i}BatchCid${Date.now().toString(36)}`,
       50 + i * 10, // avg output
@@ -107,7 +119,7 @@ async function main() {
   // 4. Create a data order
   console.log("\n--- Creating Data Order ---");
   tx = await marketplace.createOrder(
-    0, // SolarPanel
+    0, // SolarArray
     "MENA-UAE",
     8000, // 80% min uptime
     30, // min 30 kWh avg output
@@ -128,7 +140,7 @@ async function main() {
   console.log("\n--- Creating Financing Trigger ---");
   tx = await trigger.createTrigger(
     wallet.address, // beneficiary
-    0, // deviceId (Solar Panel)
+    0, // deviceId (Solar Array)
     0, // OutputAbove
     40, // threshold: 40 kWh
     86400 * 7, // 7 day observation
@@ -136,7 +148,7 @@ async function main() {
     { value: ethers.parseEther("0.5") } // 0.5 ADI payout
   );
   await tx.wait();
-  console.log("Created trigger 0 (Solar Panel > 40 kWh for 3 batches -> 0.5 ADI)");
+  console.log("Created trigger 0 (Solar Array > 40 kWh for 3 batches -> 0.5 ADI)");
 
   console.log("\n--- Seed Complete ---");
   console.log("Total devices:", (await registry.totalDevices()).toString());

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-interface IDeSenseAccessControl {
+interface IZeusAccessControl {
     function OPERATOR_ROLE() external view returns (bytes32);
     function BUYER_ROLE() external view returns (bytes32);
     function AUDITOR_ROLE() external view returns (bytes32);

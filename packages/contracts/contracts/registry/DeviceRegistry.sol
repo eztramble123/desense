@@ -3,10 +3,10 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "../interfaces/IDeviceRegistry.sol";
-import "../interfaces/IDeSenseAccessControl.sol";
+import "../interfaces/IZeusAccessControl.sol";
 
 contract DeviceRegistry is ERC721Enumerable, IDeviceRegistry {
-    IDeSenseAccessControl public accessControl;
+    IZeusAccessControl public accessControl;
     uint256 private _nextTokenId;
 
     mapping(uint256 => DeviceMetadata) private _devices;
@@ -21,8 +21,8 @@ contract DeviceRegistry is ERC721Enumerable, IDeviceRegistry {
         _;
     }
 
-    constructor(address _accessControl) ERC721("DeSense Device", "DDEV") {
-        accessControl = IDeSenseAccessControl(_accessControl);
+    constructor(address _accessControl) ERC721("Zeus Energy Asset", "ZEUS") {
+        accessControl = IZeusAccessControl(_accessControl);
     }
 
     function registerDevice(
@@ -31,7 +31,10 @@ contract DeviceRegistry is ERC721Enumerable, IDeviceRegistry {
         string calldata region,
         uint256 minOutput,
         uint256 maxOutput,
-        uint256 samplingRateSeconds
+        uint256 samplingRateSeconds,
+        uint256 capacity,
+        int256 latitude,
+        int256 longitude
     ) external onlyOperator returns (uint256 deviceId) {
         deviceId = _nextTokenId++;
         _mint(msg.sender, deviceId);
@@ -45,7 +48,10 @@ contract DeviceRegistry is ERC721Enumerable, IDeviceRegistry {
             maxOutput: maxOutput,
             samplingRateSeconds: samplingRateSeconds,
             operator: msg.sender,
-            registeredAt: block.timestamp
+            registeredAt: block.timestamp,
+            capacity: capacity,
+            latitude: latitude,
+            longitude: longitude
         });
 
         emit DeviceRegistered(deviceId, msg.sender, deviceType, region);

@@ -2,11 +2,11 @@
 pragma solidity ^0.8.24;
 
 import "../interfaces/IFinancingTrigger.sol";
-import "../interfaces/IDeSenseAccessControl.sol";
+import "../interfaces/IZeusAccessControl.sol";
 import "../interfaces/IDataCommitment.sol";
 
 contract FinancingTrigger is IFinancingTrigger {
-    IDeSenseAccessControl public accessControl;
+    IZeusAccessControl public accessControl;
     IDataCommitment public dataCommitment;
 
     uint256 private _nextTriggerId;
@@ -14,7 +14,7 @@ contract FinancingTrigger is IFinancingTrigger {
     mapping(uint256 => Trigger) private _triggers;
 
     constructor(address _accessControl, address _dataCommitment) {
-        accessControl = IDeSenseAccessControl(_accessControl);
+        accessControl = IZeusAccessControl(_accessControl);
         dataCommitment = IDataCommitment(_dataCommitment);
     }
 
@@ -69,11 +69,16 @@ contract FinancingTrigger is IFinancingTrigger {
             return;
         }
 
-        require(batchId > trigger.lastEvaluatedBatch || trigger.lastEvaluatedBatch == 0,
+        // batchId starts at 1 in DataCommitment, so this guard works correctly:
+        // lastEvaluatedBatch=0 means no batch evaluated yet, any batchId >= 1 passes
+        require(batchId > trigger.lastEvaluatedBatch,
             "FinancingTrigger: batch already evaluated");
 
         IDataCommitment.Batch memory batch = dataCommitment.getBatch(batchId);
         require(batch.deviceId == trigger.deviceId, "FinancingTrigger: wrong device");
+
+        // Disputed batches don't count
+        require(!batch.disputed, "FinancingTrigger: batch is disputed");
 
         trigger.lastEvaluatedBatch = batchId;
 

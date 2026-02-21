@@ -9,10 +9,10 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   console.log("Deploying with account:", wallet.address);
 
   // 1. Deploy AccessControl
-  const accessControlArtifact = await deployer.loadArtifact("DeSenseAccessControl");
+  const accessControlArtifact = await deployer.loadArtifact("ZeusAccessControl");
   const accessControl = await deployer.deploy(accessControlArtifact, [wallet.address]);
   const accessControlAddr = await accessControl.getAddress();
-  console.log("DeSenseAccessControl deployed to:", accessControlAddr);
+  console.log("ZeusAccessControl deployed to:", accessControlAddr);
 
   // 2. Deploy DeviceRegistry
   const registryArtifact = await deployer.loadArtifact("DeviceRegistry");

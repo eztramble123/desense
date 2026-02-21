@@ -13,9 +13,9 @@ import { SensorReading } from "./solar";
 export function generateReadings(deviceType: number, count: number, intervalSeconds: number): SensorReading[] {
   switch (deviceType) {
     case 0: return generateSolarReadings(count, intervalSeconds);
-    case 1: return generatePowerMeterReadings(count, intervalSeconds);
-    case 2: return generateTransformerReadings(count, intervalSeconds);
-    case 3: return generateWindReadings(count, intervalSeconds);
+    case 1: return generateWindReadings(count, intervalSeconds);
+    case 2: return generateTransformerReadings(count, intervalSeconds); // HydroTurbine
+    case 3: return generatePowerMeterReadings(count, intervalSeconds); // SmartMeter
     default: throw new Error(`Unknown device type: ${deviceType}`);
   }
 }
