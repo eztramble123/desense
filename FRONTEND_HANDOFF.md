@@ -489,6 +489,16 @@ These write operations should still go directly to the chain from the frontend:
 
 Contract ABIs will need updating for the new function signatures (especially `registerDevice` which now takes `capacity`, `latitude`, `longitude`).
 
+### Deployed Contract Addresses (ADI Testnet — Chain ID 99999)
+
+```
+NEXT_PUBLIC_ACCESS_CONTROL=0x216B8b81FEBeAa1873fB273b06799859B2F443DC
+NEXT_PUBLIC_DEVICE_REGISTRY=0x21758BC954072cE6f6Bd299bB99751BdD3BA9f24
+NEXT_PUBLIC_DATA_COMMITMENT=0xb006C666a25a7C3B6b3DC3F972D820472Dc98772
+NEXT_PUBLIC_DATA_MARKETPLACE=0xDE34e6E4646C26C73Ac3db792Ee652a7E2242dC4
+NEXT_PUBLIC_FINANCING_TRIGGER=0x203f6AcD51cf54e29154747b868670E99100eAf2
+```
+
 ---
 
 ## TypeScript Types (copy-paste ready)
