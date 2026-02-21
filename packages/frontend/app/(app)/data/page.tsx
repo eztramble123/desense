@@ -20,13 +20,11 @@ function ReadingCard({ reading, index }: { reading: Reading; index: number }) {
   return (
     <div className="panel p-5 flex items-center gap-8">
       <p className="text-[11px] font-mono text-white/20 w-6 shrink-0">{String(index + 1).padStart(2, "0")}</p>
-
       <div className="flex-1 grid grid-cols-3 gap-6">
         <Field label="Timestamp" value={`${reading.timestamp}`} mono />
         <Field label="UTC Time" value={time} />
         <Field label="Output" value={`${kwh} kWh (${reading.output.toLocaleString()} Wh)`} mono />
       </div>
-
       <div className={`px-3 py-1 rounded text-[11px] font-bold uppercase tracking-wider border shrink-0 ${
         reading.uptime
           ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
@@ -51,7 +49,6 @@ export default function DataPage() {
         </h1>
       </div>
 
-      {/* Asset */}
       <div className="panel p-6 space-y-5">
         <p className="label">Asset</p>
         <div className="grid grid-cols-4 gap-5">
@@ -70,7 +67,6 @@ export default function DataPage() {
         </div>
       </div>
 
-      {/* SLA */}
       <div className="panel p-6 space-y-5">
         <p className="label">SLA</p>
         <div className="grid grid-cols-4 gap-5">
@@ -82,7 +78,6 @@ export default function DataPage() {
         </div>
       </div>
 
-      {/* Batch */}
       <div className="panel p-6 space-y-5">
         <p className="label">Batch #{SAMPLE_BATCH.batchId}</p>
         <div className="grid grid-cols-4 gap-5">
@@ -100,7 +95,6 @@ export default function DataPage() {
         </div>
       </div>
 
-      {/* Individual readings */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <p className="label">Readings</p>
