@@ -117,7 +117,7 @@ export default function AnalyticsPage() {
               <div>
                 <p className="label mb-1">Combined Output · 24h</p>
                 <p className="text-white/40 text-[13px]">
-                  {filtered.map((a) => a.location).join(" · ")}
+                  {type !== "All" ? type : "All types"} · {region !== "All" ? region : "All regions"}
                 </p>
               </div>
               <p className="text-[11px] font-mono text-white/20">

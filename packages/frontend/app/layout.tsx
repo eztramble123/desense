@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Zeus — Proof-of-Generation",
+  title: "Zeus — Verifiable Energy Monitoring",
   description: "Verified energy generation monitoring on ADI Chain",
 };
 
