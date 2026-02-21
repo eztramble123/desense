@@ -68,9 +68,9 @@ export function AssetMap({ assets }: AssetMapProps) {
               </p>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {[
-                  [`${hovered.capacityKw} kW`,             "Capacity"],
-                  [`${hovered.capacityFactor}%`,           "CF"],
-                  [`${hovered.sla.avgUptime.toFixed(0)}%`, "Uptime"],
+                  [`${(hovered.sla.avgOutput * 48 / 1000).toFixed(1)} kWh`, "Total (24h)"],
+                  [`${(hovered.sla.avgOutput / 500).toFixed(1)} kW`,        "Avg Load"],
+                  [`${hovered.sla.avgUptime.toFixed(0)}%`,                  "Uptime"],
                 ].map(([value, label]) => (
                   <div key={label} style={{
                     display: "flex",
