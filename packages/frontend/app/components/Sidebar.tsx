@@ -3,22 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import {
-  Sun,
-  BarChart3,
-  Shield,
-  TrendingUp,
-  Zap,
-  Fuel,
-  Database,
-} from "lucide-react";
+import { LayoutDashboard, Server, Database, Zap } from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/operator", label: "Generation Assets", icon: Sun },
-  { href: "/buyer", label: "Data Subscriptions", icon: BarChart3 },
-  { href: "/finance", label: "Performance Triggers", icon: TrendingUp },
-  { href: "/admin", label: "Administration", icon: Shield },
-  { href: "/admin/paymaster", label: "Gas Sponsorship", icon: Fuel },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/devices", label: "Devices", icon: Server },
   { href: "/data", label: "Sample Data", icon: Database },
 ];
 
@@ -41,7 +30,7 @@ export function Sidebar() {
 
       <nav className="flex-1 p-4 space-y-1">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
               key={item.href}
