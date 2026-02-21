@@ -9,33 +9,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
         zeus: {
-          gold: "#B8860B",
-          "gold-light": "#D4A843",
-          "gold-dark": "#8B6508",
-          stone: {
-            50: "#FAFAF8",
-            100: "#F5F5F0",
-            200: "#E8E6DF",
-            300: "#D4D0C8",
-            400: "#A8A295",
-            500: "#7C7568",
-            600: "#5C554A",
-            700: "#3D3832",
-            800: "#2A2520",
-            900: "#1A1714",
-          },
+          gold: "#f59e0b",
+          bg: "#0c0c0f",
+          surface: "#111115",
+          "surface-2": "#16161b",
+          border: "#1f1f27",
+          muted: "#4b4b58",
         },
       },
       fontFamily: {
-        display: ['"Cormorant Garamond"', "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ['"GeistMono"', "ui-monospace", "monospace"],
+        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
       },
     },
   },
   plugins: [],
 };
+
 export default config;

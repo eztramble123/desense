@@ -1,67 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --zeus-gold: #B8860B;
-  --zeus-gold-light: #D4A843;
-  --zeus-gold-dark: #8B6508;
-  --zeus-stone-50: #FAFAF8;
-  --zeus-stone-100: #F5F5F0;
-  --zeus-stone-200: #E8E6DF;
-  --zeus-stone-300: #D4D0C8;
-  --zeus-stone-800: #2A2520;
-  --zeus-stone-900: #1A1714;
+  --bg: #0c0c0f;
+  --surface: #111115;
+  --surface-2: #16161b;
+  --border: #1f1f27;
+  --text: #ffffff;
+  --muted: #4b4b58;
+  --accent: #f59e0b;
 }
 
 body {
-  color: var(--zeus-stone-800);
-  background: var(--zeus-stone-50);
-  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Neo-Classical utility classes */
 @layer components {
-  .zeus-heading {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    @apply font-semibold uppercase tracking-[0.08em];
+  .label {
+    @apply text-[11px] font-medium uppercase tracking-[0.1em] text-[#4b4b58];
   }
 
-  .zeus-label {
-    @apply text-xs font-semibold uppercase tracking-[0.1em] text-zeus-stone-500;
+  .z-table th {
+    @apply text-left px-4 py-3 text-[11px] font-medium uppercase tracking-[0.08em] text-[#4b4b58];
+    border-bottom: 1px solid #1f1f27;
   }
 
-  .zeus-card {
-    @apply bg-white rounded-lg border border-zeus-stone-200 shadow-sm;
+  .z-table td {
+    @apply px-4 py-3 text-[13px] text-white/60;
+    border-bottom: 1px solid #16161b;
   }
 
-  .zeus-card-inset {
-    @apply bg-zeus-stone-50 rounded-lg border border-zeus-stone-200 shadow-inner;
+  .z-table tbody tr:last-child td {
+    border-bottom: none;
   }
 
-  .zeus-input {
-    @apply w-full px-3 py-2.5 bg-zeus-stone-50 border border-zeus-stone-300 rounded-lg text-sm text-zeus-stone-800 placeholder:text-zeus-stone-400 shadow-inner focus:outline-none focus:ring-2 focus:ring-zeus-gold/40 focus:border-zeus-gold;
-  }
-
-  .zeus-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zeus-gold text-white text-sm font-semibold uppercase tracking-wider rounded-lg hover:bg-zeus-gold-dark transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .zeus-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-zeus-stone-700 text-sm font-medium border border-zeus-stone-300 rounded-lg hover:bg-zeus-stone-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .zeus-table th {
-    @apply text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-zeus-stone-500 border-b-2 border-zeus-stone-200;
-  }
-
-  .zeus-table td {
-    @apply px-4 py-3 text-sm text-zeus-stone-700 border-b border-zeus-stone-100;
-  }
-
-  .zeus-table tbody tr {
-    @apply hover:bg-zeus-stone-50 transition-colors;
+  .z-table tbody tr:hover td {
+    @apply text-white/90 bg-[#111115];
   }
 }

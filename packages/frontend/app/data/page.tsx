@@ -1,39 +1,36 @@
 "use client";
 
-import { Zap, Activity, TrendingUp, TrendingDown, Database } from "lucide-react";
 import { OutputChart } from "../components/OutputChart";
 import { StatCard } from "../components/StatCard";
 import { DataTable } from "../components/DataTable";
 import { SAMPLE_READINGS, SAMPLE_ASSET, SAMPLE_BATCH, type Reading } from "./sample";
 
-const windowLabel = `${new Date(SAMPLE_BATCH.windowStart * 1000).toUTCString().slice(0, 16)} — ${new Date(SAMPLE_BATCH.windowEnd * 1000).toUTCString().slice(0, 16)} UTC`;
-
-// OutputChart expects kWh; readings are in Wh
+const activeOutputs = SAMPLE_READINGS.filter((r) => r.uptime && r.output > 0).map((r) => r.output);
 const chartData = SAMPLE_READINGS.map((r) => ({ timestamp: r.timestamp, output: r.output / 1000 }));
 
-const activeOutputs = SAMPLE_READINGS.filter((r) => r.uptime && r.output > 0).map((r) => r.output);
-const peakKwh = (Math.max(...activeOutputs) / 1000).toFixed(1);
-const minKwh = (Math.min(...activeOutputs) / 1000).toFixed(1);
+const fmt = (ts: number) =>
+  new Date(ts * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
 const columns = [
   {
     key: "timestamp",
     header: "Time (UTC)",
     sortable: true,
-    render: (r: Reading) =>
-      new Date(r.timestamp * 1000).toUTCString().slice(17, 22),
+    render: (r: Reading) => (
+      <span className="font-mono text-[13px]">{new Date(r.timestamp * 1000).toUTCString().slice(17, 22)}</span>
+    ),
   },
   {
     key: "output",
-    header: "Output (kWh)",
+    header: "Output",
     sortable: true,
-    render: (r: Reading) => (r.output / 1000).toFixed(3),
+    render: (r: Reading) => `${(r.output / 1000).toFixed(3)} kWh`,
   },
   {
     key: "uptime",
     header: "Status",
     render: (r: Reading) => (
-      <span className={r.uptime ? "text-green-400" : "text-red-400"}>
+      <span className={r.uptime ? "text-emerald-400" : "text-red-400"}>
         {r.uptime ? "Online" : "Offline"}
       </span>
     ),
@@ -42,33 +39,56 @@ const columns = [
 
 export default function DataPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <Database className="w-5 h-5 text-zeus-gold" />
-          <h2 className="text-xl font-semibold text-zeus-stone-800">Sample Data Explorer</h2>
+    <div className="p-10 max-w-5xl">
+
+      {/* Header */}
+      <div className="flex items-start justify-between mb-10">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Sample Data Explorer</h1>
+          <p className="text-[13px] text-[#4b4b58] mt-1">
+            {SAMPLE_ASSET.deviceTypeLabel} · {SAMPLE_ASSET.location}
+          </p>
         </div>
-        <p className="zeus-label text-zeus-stone-400">
-          {SAMPLE_ASSET.deviceTypeLabel} · {SAMPLE_ASSET.location} · {windowLabel}
-        </p>
+        <div className="px-3 py-1.5 bg-[#111115] border border-[#1f1f27] rounded-lg text-[13px] text-[#4b4b58]">
+          {fmt(SAMPLE_BATCH.windowStart)} — {fmt(SAMPLE_BATCH.windowEnd)}
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard label="Avg Output" value={`${SAMPLE_BATCH.avgOutput} kWh`} icon={Zap} trend="per reading interval" />
-        <StatCard label="Uptime" value={`${SAMPLE_BATCH.uptimePercent.toFixed(1)}%`} icon={Activity} trend={`${SAMPLE_BATCH.uptimeBps} bps`} />
-        <StatCard label="Peak Output" value={`${peakKwh} kWh`} icon={TrendingUp} trend="~noon UTC+4" />
-        <StatCard label="Min Output" value={`${minKwh} kWh`} icon={TrendingDown} trend="online readings" />
+      {/* Stats row */}
+      <div className="flex items-start gap-10 pb-10 border-b border-[#1f1f27]">
+        <StatCard label="Avg Output" value={`${SAMPLE_BATCH.avgOutput} kWh`} />
+        <div className="w-px h-10 bg-[#1f1f27] self-center" />
+        <StatCard
+          label="Uptime"
+          value={`${SAMPLE_BATCH.uptimePercent.toFixed(1)}%`}
+          sub={`${SAMPLE_BATCH.uptimeBps} bps`}
+        />
+        <div className="w-px h-10 bg-[#1f1f27] self-center" />
+        <StatCard
+          label="Peak Output"
+          value={`${(Math.max(...activeOutputs) / 1000).toFixed(1)} kWh`}
+          sub="~noon UTC+4"
+        />
+        <div className="w-px h-10 bg-[#1f1f27] self-center" />
+        <StatCard label="Total Batches" value={SAMPLE_ASSET.sla.totalBatches} sub="on-chain" />
       </div>
 
-      <div className="zeus-card p-6">
-        <h3 className="zeus-label mb-4">Generation Over 24h</h3>
-        <OutputChart data={chartData} height={280} />
+      {/* Chart */}
+      <div className="py-10 border-b border-[#1f1f27]">
+        <OutputChart data={chartData} height={260} />
       </div>
 
-      <div className="zeus-card p-6">
-        <h3 className="zeus-label mb-4">Raw Readings — {SAMPLE_READINGS.length} samples · Batch #{SAMPLE_BATCH.batchId}</h3>
+      {/* Table */}
+      <div className="pt-10">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-[13px] font-medium">Raw Readings</h2>
+          <span className="text-[11px] text-[#4b4b58]">
+            {SAMPLE_READINGS.length} samples · Batch #{SAMPLE_BATCH.batchId}
+          </span>
+        </div>
         <DataTable columns={columns} data={SAMPLE_READINGS} keyField="timestamp" />
       </div>
+
     </div>
   );
 }
