@@ -1,135 +1,114 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
-import { OutputChart } from "../components/OutputChart";
-import { StatCard } from "../components/StatCard";
-import { DataTable } from "../components/DataTable";
 import { SAMPLE_READINGS, SAMPLE_ASSET, SAMPLE_BATCH, type Reading } from "./sample";
 
-const activeOutputs = SAMPLE_READINGS.filter((r) => r.uptime && r.output > 0).map((r) => r.output);
-const chartData = SAMPLE_READINGS.map((r) => ({ timestamp: r.timestamp, output: r.output / 1000 }));
+const DISPLAY_FONT = { fontFamily: "'Barlow Condensed', sans-serif" };
 
-const fmt = (ts: number) =>
-  new Date(ts * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+function Field({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <div>
+      <p className="label mb-1">{label}</p>
+      <p className={`text-[13px] text-white/70 ${mono ? "font-mono" : ""}`}>{value}</p>
+    </div>
+  );
+}
 
-const columns = [
-  {
-    key: "timestamp",
-    header: "Time (UTC)",
-    sortable: true,
-    render: (r: Reading) => (
-      <span className="font-mono text-[13px]">{new Date(r.timestamp * 1000).toUTCString().slice(17, 22)}</span>
-    ),
-  },
-  {
-    key: "output",
-    header: "Output",
-    sortable: true,
-    render: (r: Reading) => `${(r.output / 1000).toFixed(3)} kWh`,
-  },
-  {
-    key: "uptime",
-    header: "Status",
-    render: (r: Reading) => (
-      <span className={r.uptime ? "text-emerald-400" : "text-red-400"}>
-        {r.uptime ? "Online" : "Offline"}
-      </span>
-    ),
-  },
-];
+function ReadingCard({ reading, index }: { reading: Reading; index: number }) {
+  const time = new Date(reading.timestamp * 1000).toUTCString().slice(0, 25);
+  const kwh = (reading.output / 1000).toFixed(3);
+
+  return (
+    <div className="panel p-5 flex items-center gap-8">
+      <p className="text-[11px] font-mono text-white/20 w-6 shrink-0">{String(index + 1).padStart(2, "0")}</p>
+
+      <div className="flex-1 grid grid-cols-3 gap-6">
+        <Field label="Timestamp" value={`${reading.timestamp}`} mono />
+        <Field label="UTC Time" value={time} />
+        <Field label="Output" value={`${kwh} kWh (${reading.output.toLocaleString()} Wh)`} mono />
+      </div>
+
+      <div className={`px-3 py-1 rounded text-[11px] font-bold uppercase tracking-wider border shrink-0 ${
+        reading.uptime
+          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+          : "bg-red-500/10 text-red-400 border-red-500/20"
+      }`}>
+        {reading.uptime ? "Online" : "Offline"}
+      </div>
+    </div>
+  );
+}
 
 export default function DataPage() {
+  const fmt = (ts: number) => new Date(ts * 1000).toUTCString().slice(0, 25);
+
   return (
-    <div className="p-10 max-w-5xl space-y-6">
+    <div className="p-10 max-w-5xl space-y-8">
 
-      {/* Page header */}
-      <div className="flex items-end justify-between">
-        <div>
-          <p className="label mb-2">Sample Dataset</p>
-          <h1
-            className="text-5xl font-black uppercase tracking-tight leading-none text-white"
-            style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-          >
-            {SAMPLE_ASSET.deviceTypeLabel}
-          </h1>
-          <p className="text-[13px] mt-2" style={{ color: "rgba(255,255,255,0.45)" }}>
-            {SAMPLE_ASSET.location} · {SAMPLE_ASSET.region}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg border text-[13px] font-medium"
-          style={{ background: "#0a1530", borderColor: "#152046", color: "rgba(255,255,255,0.45)" }}>
-          {fmt(SAMPLE_BATCH.windowStart)} — {fmt(SAMPLE_BATCH.windowEnd)}
+      <div>
+        <p className="label mb-2">Sample Data</p>
+        <h1 className="text-5xl font-black uppercase tracking-tight leading-none" style={DISPLAY_FONT}>
+          Sample Dataset
+        </h1>
+      </div>
+
+      {/* Asset */}
+      <div className="panel p-6 space-y-5">
+        <p className="label">Asset</p>
+        <div className="grid grid-cols-4 gap-5">
+          <Field label="ID" value={`#${SAMPLE_ASSET.id}`} />
+          <Field label="Type" value={SAMPLE_ASSET.deviceTypeLabel} />
+          <Field label="Status" value={SAMPLE_ASSET.statusLabel} />
+          <Field label="Region" value={SAMPLE_ASSET.region} />
+          <Field label="Location" value={SAMPLE_ASSET.location} />
+          <Field label="Coordinates" value={`${SAMPLE_ASSET.latitude}, ${SAMPLE_ASSET.longitude}`} />
+          <Field label="Capacity" value={`${SAMPLE_ASSET.capacityKw} kW`} />
+          <Field label="Capacity Factor" value={`${SAMPLE_ASSET.capacityFactor}%`} />
+          <Field label="Total Generation" value={`${SAMPLE_ASSET.totalGenerationKwh.toLocaleString()} kWh`} />
+          <Field label="Registered" value={fmt(SAMPLE_ASSET.registeredAt)} />
+          <Field label="Operator" value={SAMPLE_ASSET.operator} mono />
+          <Field label="Device Type Enum" value={`${SAMPLE_ASSET.deviceType}`} />
         </div>
       </div>
 
-      {/* Stat cards panel */}
-      <div className="panel p-8 grid grid-cols-4 gap-8">
-        <StatCard label="Avg Output" value={`${SAMPLE_BATCH.avgOutput} kWh`} />
-        <StatCard
-          label="Uptime"
-          value={`${SAMPLE_BATCH.uptimePercent.toFixed(1)}%`}
-          sub={`${SAMPLE_BATCH.uptimeBps} bps`}
-        />
-        <StatCard
-          label="Peak Output"
-          value={`${(Math.max(...activeOutputs) / 1000).toFixed(1)} kWh`}
-          sub="~noon UTC+4"
-        />
-        <StatCard label="Total Batches" value={SAMPLE_ASSET.sla.totalBatches} sub="on-chain" />
-      </div>
-
-      {/* Chart panel */}
-      <div className="panel p-8">
-        <div className="flex items-center justify-between mb-6">
-          <p className="label">Generation Output · 24h</p>
-          <span className="text-[11px] font-mono" style={{ color: "rgba(255,255,255,0.25)" }}>
-            Batch #{SAMPLE_BATCH.batchId} · {SAMPLE_READINGS.length} readings
-          </span>
-        </div>
-        <OutputChart data={chartData} height={240} />
-      </div>
-
-      {/* Batch metadata panel */}
-      <div className="panel p-8 grid grid-cols-3 gap-6 text-[13px]">
-        <div>
-          <p className="label mb-1.5">Data Root</p>
-          <p className="font-mono text-[12px] break-all" style={{ color: "rgba(255,255,255,0.5)" }}>
-            {SAMPLE_BATCH.dataRoot.slice(0, 20)}…
-          </p>
-        </div>
-        <div>
-          <p className="label mb-1.5">IPFS CID</p>
-          <p className="font-mono text-[12px] break-all" style={{ color: "rgba(255,255,255,0.5)" }}>
-            {SAMPLE_BATCH.ipfsCid.slice(0, 20)}…
-          </p>
-        </div>
-        <div>
-          <p className="label mb-1.5">Tx Hash</p>
-          <a
-            href={`https://explorer.ab.testnet.adifoundation.ai/tx/${SAMPLE_BATCH.txHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 font-mono text-[12px] text-[#2563eb] hover:text-[#60a5fa] transition-colors"
-          >
-            {SAMPLE_BATCH.txHash.slice(0, 20)}… <ArrowUpRight className="w-3 h-3" />
-          </a>
+      {/* SLA */}
+      <div className="panel p-6 space-y-5">
+        <p className="label">SLA</p>
+        <div className="grid grid-cols-4 gap-5">
+          <Field label="Total Batches" value={`${SAMPLE_ASSET.sla.totalBatches}`} />
+          <Field label="Avg Uptime" value={`${SAMPLE_ASSET.sla.avgUptime.toFixed(2)}%`} />
+          <Field label="Avg Output" value={`${(SAMPLE_ASSET.sla.avgOutput / 1000).toFixed(3)} kWh (${SAMPLE_ASSET.sla.avgOutput.toLocaleString()} Wh)`} />
+          <Field label="Freshness Penalties" value={`${SAMPLE_ASSET.sla.freshnessPenalties}`} />
+          <Field label="Last Submission" value={fmt(SAMPLE_ASSET.sla.lastSubmission)} />
         </div>
       </div>
 
-      {/* Raw readings table */}
-      <div className="panel overflow-hidden">
-        <div className="flex items-center justify-between px-8 py-5 border-b border-[#152046]">
-          <p
-            className="text-lg font-black uppercase tracking-tight"
-            style={{ fontFamily: "'Barlow Condensed', sans-serif" }}
-          >
-            Raw Readings
-          </p>
-          <span className="label">{SAMPLE_READINGS.length} samples · 30 min intervals</span>
+      {/* Batch */}
+      <div className="panel p-6 space-y-5">
+        <p className="label">Batch #{SAMPLE_BATCH.batchId}</p>
+        <div className="grid grid-cols-4 gap-5">
+          <Field label="Window Start" value={fmt(SAMPLE_BATCH.windowStart)} />
+          <Field label="Window End" value={fmt(SAMPLE_BATCH.windowEnd)} />
+          <Field label="Avg Output" value={`${SAMPLE_BATCH.avgOutput} kWh`} />
+          <Field label="Uptime" value={`${SAMPLE_BATCH.uptimePercent.toFixed(2)}% (${SAMPLE_BATCH.uptimeBps} bps)`} />
+          <Field label="Block" value={`${SAMPLE_BATCH.blockNumber}`} />
+          <Field label="Disputed" value={SAMPLE_BATCH.disputed ? "Yes" : "No"} />
+          <Field label="Submitter" value={SAMPLE_BATCH.submitter} mono />
+          <Field label="Submitted" value={fmt(SAMPLE_BATCH.submittedAt)} />
+          <Field label="Tx Hash" value={SAMPLE_BATCH.txHash} mono />
+          <Field label="Data Root" value={SAMPLE_BATCH.dataRoot} mono />
+          <Field label="IPFS CID" value={SAMPLE_BATCH.ipfsCid} mono />
         </div>
-        <div className="px-4">
-          <DataTable columns={columns} data={SAMPLE_READINGS} keyField="timestamp" />
+      </div>
+
+      {/* Individual readings */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="label">Readings</p>
+          <p className="text-[11px] font-mono text-white/20">{SAMPLE_READINGS.length} entries · 1800s interval</p>
         </div>
+        {SAMPLE_READINGS.map((r, i) => (
+          <ReadingCard key={r.timestamp} reading={r} index={i} />
+        ))}
       </div>
 
     </div>

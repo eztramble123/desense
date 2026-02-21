@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Server, Database, Zap } from "lucide-react";
+import { LayoutDashboard, Server, Database, BarChart2, Zap } from "lucide-react";
 import clsx from "clsx";
 
 const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/devices",   label: "Devices",   icon: Server },
-  { href: "/data",      label: "Sample Data", icon: Database },
+  { href: "/dashboard",  label: "Dashboard",   icon: LayoutDashboard },
+  { href: "/devices",    label: "Devices",     icon: Server },
+  { href: "/analytics",  label: "Analytics",   icon: BarChart2 },
+  { href: "/data",       label: "Sample Data", icon: Database },
 ];
 
 export function Sidebar() {
