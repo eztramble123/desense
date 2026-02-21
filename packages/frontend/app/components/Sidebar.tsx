@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Server, Database, BarChart2, Zap } from "lucide-react";
+import { RiBarChartBoxLine, RiDatabase2Line, RiFlashlightLine } from "react-icons/ri";
 import clsx from "clsx";
 
 const NAV = [
-  { href: "/dashboard",  label: "Dashboard",   icon: LayoutDashboard },
-  { href: "/devices",    label: "Devices",     icon: Server },
-  { href: "/analytics",  label: "Analytics",   icon: BarChart2 },
-  { href: "/data",       label: "Sample Data", icon: Database },
+  { href: "/analytics",  label: "Analytics",   icon: RiBarChartBoxLine },
+  { href: "/data",       label: "Sample Data", icon: RiDatabase2Line },
 ];
 
 export function Sidebar() {
@@ -18,12 +16,10 @@ export function Sidebar() {
   return (
     <aside className="w-[220px] min-h-screen border-r border-[#152046] flex flex-col shrink-0 bg-[#04091c]">
       <div className="h-16 flex items-center gap-3 px-6 border-b border-[#152046]">
-        <div className="p-1.5 bg-[#2563eb] rounded-md">
-          <Zap className="w-4 h-4 text-white" />
-        </div>
+        <RiFlashlightLine size={22} className="text-[#2563eb] shrink-0" />
         <div>
           <p className="text-sm font-display font-bold uppercase tracking-widest leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>Zeus</p>
-          <p className="text-[9px] uppercase tracking-[0.15em] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>Proof-of-Generation</p>
+          <p className="text-[9px] uppercase tracking-[0.08em] mt-0.5 whitespace-nowrap" style={{ color: "rgba(255,255,255,0.3)" }}>Verifiable Energy Data</p>
         </div>
       </div>
 
