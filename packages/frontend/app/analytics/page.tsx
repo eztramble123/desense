@@ -3,8 +3,9 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import clsx from "clsx";
+import { ChevronDown } from "lucide-react";
 import { OutputChart } from "../components/OutputChart";
-import { SAMPLE_ASSETS, SAMPLE_ASSET_READINGS, SAMPLE_STATS } from "../data/sample";
+import { SAMPLE_ASSETS, SAMPLE_ASSET_READINGS } from "../data/sample";
 
 const AssetMap = dynamic(
   () => import("../components/AssetMap").then((m) => m.AssetMap),
@@ -53,8 +54,9 @@ function StatBox({ label, value, sub }: { label: string; value: string | number;
 }
 
 export default function AnalyticsPage() {
-  const [type, setType]     = useState("All");
-  const [region, setRegion] = useState("All");
+  const [type, setType]       = useState("All");
+  const [region, setRegion]   = useState("All");
+  const [assetsOpen, setAssetsOpen] = useState(false);
 
   const filtered = SAMPLE_ASSETS.filter((a) =>
     (type === "All" || a.deviceTypeLabel === type) &&
@@ -100,7 +102,7 @@ export default function AnalyticsPage() {
         <>
           {/* Stat boxes — centered, each in own container */}
           <div className="grid grid-cols-4 gap-4">
-            <StatBox label="Assets"            value={filtered.length}                              sub={`of ${SAMPLE_STATS.totalAssets} total`} />
+            <StatBox label="Assets"            value={filtered.length}                              sub={`of ${SAMPLE_ASSETS.length} total`} />
             <StatBox label="Total Generation"  value={`${(totalGen / 1000).toFixed(1)} MWh`}        sub="lifetime" />
             <StatBox label="Avg Load" value={`${avgLoadKw.toFixed(1)} kW`} />
             <StatBox label="Avg Uptime"         value={`${avgUptime.toFixed(1)}%`}                  sub={`${totalBatches} batches`} />
@@ -125,81 +127,52 @@ export default function AnalyticsPage() {
             <OutputChart data={chartData} height={260} />
           </div>
 
-          {/* Per-asset breakdown */}
+          {/* Per-asset breakdown — collapsible */}
           <div className="panel overflow-hidden">
-            <div className="px-6 py-4 border-b border-[#152046]">
-              <p className="label">Assets</p>
-            </div>
-            <div className="divide-y divide-[#152046]">
-              {filtered.map((a) => {
-                const readings = SAMPLE_ASSET_READINGS[a.id];
-                const peak = Math.max(...readings.filter((r) => r.uptime).map((r) => r.output));
-                return (
-                  <div key={a.id} className="px-6 py-4 flex items-center gap-6">
-                    <div className="flex-1 grid grid-cols-5 gap-4">
-                      <div>
-                        <p className="label mb-1">Type</p>
-                        <p className="text-[13px] text-white/80 font-medium">{a.deviceTypeLabel}</p>
+            <button
+              onClick={() => setAssetsOpen((o) => !o)}
+              className="w-full px-6 py-4 flex items-center justify-between hover:bg-[#0f1e42] transition-colors"
+            >
+              <p className="label">Assets ({filtered.length})</p>
+              <ChevronDown className={clsx("w-4 h-4 text-white/30 transition-transform", assetsOpen && "rotate-180")} />
+            </button>
+            {assetsOpen && (
+              <div className="divide-y divide-[#152046] border-t border-[#152046]">
+                {filtered.map((a) => {
+                  const readings = SAMPLE_ASSET_READINGS[a.id];
+                  const peak = Math.max(...readings.filter((r) => r.uptime).map((r) => r.output));
+                  return (
+                    <div key={a.id} className="px-6 py-4 flex items-center gap-6">
+                      <div className="flex-1 grid grid-cols-5 gap-4">
+                        <div>
+                          <p className="label mb-1">Type</p>
+                          <p className="text-[13px] text-white/80 font-medium">{a.deviceTypeLabel}</p>
+                        </div>
+                        <div>
+                          <p className="label mb-1">Location</p>
+                          <p className="text-[13px] text-white/60">{a.location}</p>
+                        </div>
+                        <div>
+                          <p className="label mb-1">Capacity</p>
+                          <p className="text-[13px] text-white/60">{a.capacityKw} kW</p>
+                        </div>
+                        <div>
+                          <p className="label mb-1">Avg Load</p>
+                          <p className="text-[13px] text-white/60">{(a.sla.avgOutput / 500).toFixed(1)} kW</p>
+                        </div>
+                        <div>
+                          <p className="label mb-1">Peak (24h)</p>
+                          <p className="text-[13px] text-white/60">{(peak / 1000).toFixed(1)} kWh</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="label mb-1">Location</p>
-                        <p className="text-[13px] text-white/60">{a.location}</p>
-                      </div>
-                      <div>
-                        <p className="label mb-1">Capacity</p>
-                        <p className="text-[13px] text-white/60">{a.capacityKw} kW</p>
-                      </div>
-                      <div>
-                        <p className="label mb-1">Capacity Factor</p>
-                        <p className="text-[13px] text-white/60">{a.capacityFactor}%</p>
-                      </div>
-                      <div>
-                        <p className="label mb-1">Peak (24h)</p>
-                        <p className="text-[13px] text-white/60">{(peak / 1000).toFixed(1)} kWh</p>
-                      </div>
+                      <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shrink-0">
+                        {a.statusLabel}
+                      </span>
                     </div>
-                    <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shrink-0">
-                      {a.statusLabel}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Network overview */}
-          <div className="grid grid-cols-2 gap-6">
-            <div className="panel p-6 space-y-4">
-              <p className="label">Network · Assets by Type</p>
-              {Object.entries(SAMPLE_STATS.assetsByType).map(([t, count]) => (
-                <div key={t} className="flex items-center justify-between">
-                  <span className="text-[13px] text-white/60">{t}</span>
-                  <div className="flex items-center gap-3">
-                    <div className="w-24 h-1 rounded-full bg-[#152046] overflow-hidden">
-                      <div className="h-full bg-[#2563eb] rounded-full" style={{ width: `${(count / SAMPLE_STATS.totalAssets) * 100}%` }} />
-                    </div>
-                    <span className="text-[13px] font-mono text-white/40 w-6 text-right">{count}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="panel p-6 space-y-4">
-              <p className="label">Network · Last 24h</p>
-              {[
-                ["Batches Submitted",    SAMPLE_STATS.last24h.batchesSubmitted],
-                ["Generation",           `${(SAMPLE_STATS.last24h.generationKwh / 1000).toFixed(1)} MWh`],
-                ["Verifications",         SAMPLE_STATS.last24h.verificationsPerformed],
-                ["Total Batches",         SAMPLE_STATS.totalBatches.toLocaleString()],
-                ["Disputed Batches",      SAMPLE_STATS.disputedBatches],
-                ["Avg Capacity Factor",  `${SAMPLE_STATS.avgCapacityFactor}%`],
-              ].map(([label, value]) => (
-                <div key={label} className="flex items-center justify-between">
-                  <span className="text-[13px] text-white/40">{label}</span>
-                  <span className="text-[13px] text-white/80 font-medium">{value}</span>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </>
       )}
