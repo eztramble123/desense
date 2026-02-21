@@ -2,67 +2,54 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LayoutDashboard, Server, Database, BarChart2, Zap } from "lucide-react";
 import clsx from "clsx";
-import {
-  Sun,
-  BarChart3,
-  Shield,
-  TrendingUp,
-  Zap,
-  Fuel,
-} from "lucide-react";
 
-const NAV_ITEMS = [
-  { href: "/operator", label: "Generation Assets", icon: Sun },
-  { href: "/buyer", label: "Data Subscriptions", icon: BarChart3 },
-  { href: "/finance", label: "Performance Triggers", icon: TrendingUp },
-  { href: "/admin", label: "Administration", icon: Shield },
-  { href: "/admin/paymaster", label: "Gas Sponsorship", icon: Fuel },
+const NAV = [
+  { href: "/dashboard",  label: "Dashboard",   icon: LayoutDashboard },
+  { href: "/devices",    label: "Devices",     icon: Server },
+  { href: "/analytics",  label: "Analytics",   icon: BarChart2 },
+  { href: "/data",       label: "Sample Data", icon: Database },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-zeus-stone-900 text-white min-h-screen flex flex-col">
-      <div className="p-6 border-b border-zeus-stone-700">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="p-2 bg-zeus-gold rounded-lg">
-            <Zap className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="font-display font-bold text-lg uppercase tracking-wider">Zeus</h1>
-            <p className="text-[10px] uppercase tracking-[0.15em] text-zeus-stone-400">Proof-of-Generation</p>
-          </div>
-        </Link>
+    <aside className="w-[220px] min-h-screen border-r border-[#152046] flex flex-col shrink-0 bg-[#04091c]">
+      <div className="h-16 flex items-center gap-3 px-6 border-b border-[#152046]">
+        <div className="p-1.5 bg-[#2563eb] rounded-md">
+          <Zap className="w-4 h-4 text-white" />
+        </div>
+        <div>
+          <p className="text-sm font-display font-bold uppercase tracking-widest leading-none" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>Zeus</p>
+          <p className="text-[9px] uppercase tracking-[0.15em] mt-0.5" style={{ color: "rgba(255,255,255,0.3)" }}>Proof-of-Generation</p>
+        </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
-        {NAV_ITEMS.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+      <nav className="flex-1 p-4 space-y-0.5">
+        {NAV.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(href + "/");
           return (
             <Link
-              key={item.href}
-              href={item.href}
+              key={href}
+              href={href}
               className={clsx(
-                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors",
-                isActive
-                  ? "bg-zeus-gold/20 text-zeus-gold-light"
-                  : "text-zeus-stone-400 hover:text-white hover:bg-zeus-stone-800"
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors",
+                active
+                  ? "bg-[#2563eb]/15 text-white border border-[#2563eb]/30"
+                  : "text-white/40 hover:text-white hover:bg-[#0f1e42]"
               )}
             >
-              <item.icon className="w-4 h-4" />
-              {item.label}
+              <Icon className={clsx("w-4 h-4 shrink-0", active ? "text-[#2563eb]" : "")} />
+              {label}
             </Link>
           );
         })}
       </nav>
 
-      <div className="p-4 border-t border-zeus-stone-700">
-        <div className="text-[10px] uppercase tracking-[0.15em] text-zeus-stone-500">
-          <p>ADI Testnet (99999)</p>
-          <p className="mt-1">Powered by ADI Chain</p>
-        </div>
+      <div className="p-5 border-t border-[#152046]">
+        <p className="text-[10px] uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.2)" }}>ADI Testnet · Chain 99999</p>
       </div>
     </aside>
   );

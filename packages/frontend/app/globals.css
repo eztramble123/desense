@@ -1,67 +1,78 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --zeus-gold: #B8860B;
-  --zeus-gold-light: #D4A843;
-  --zeus-gold-dark: #8B6508;
-  --zeus-stone-50: #FAFAF8;
-  --zeus-stone-100: #F5F5F0;
-  --zeus-stone-200: #E8E6DF;
-  --zeus-stone-300: #D4D0C8;
-  --zeus-stone-800: #2A2520;
-  --zeus-stone-900: #1A1714;
+  --bg:        #04091c;
+  --surface:   #0a1530;
+  --surface-2: #0f1e42;
+  --border:    #152046;
+  --text:      #ffffff;
+  --muted:     rgba(255,255,255,0.38);
+  --accent:    #2563eb;
+  --accent-2:  #1d4ed8;
 }
 
 body {
-  color: var(--zeus-stone-800);
-  background: var(--zeus-stone-50);
-  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  font-family: 'Barlow', var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Neo-Classical utility classes */
+/* Strip Mapbox popup chrome */
+.mapboxgl-popup-content {
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.mapboxgl-popup-tip {
+  display: none !important;
+}
+
 @layer components {
-  .zeus-heading {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    @apply font-semibold uppercase tracking-[0.08em];
+  .label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em];
+    color: var(--muted);
   }
 
-  .zeus-label {
-    @apply text-xs font-semibold uppercase tracking-[0.1em] text-zeus-stone-500;
+  .panel {
+    @apply rounded-xl border;
+    background: var(--surface);
+    border-color: var(--border);
   }
 
-  .zeus-card {
-    @apply bg-white rounded-lg border border-zeus-stone-200 shadow-sm;
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded text-[13px] font-semibold uppercase tracking-wider text-white transition-colors;
+    font-family: 'Barlow Condensed', sans-serif;
+    background: var(--accent);
   }
 
-  .zeus-card-inset {
-    @apply bg-zeus-stone-50 rounded-lg border border-zeus-stone-200 shadow-inner;
+  .btn-primary:hover {
+    background: var(--accent-2);
   }
 
-  .zeus-input {
-    @apply w-full px-3 py-2.5 bg-zeus-stone-50 border border-zeus-stone-300 rounded-lg text-sm text-zeus-stone-800 placeholder:text-zeus-stone-400 shadow-inner focus:outline-none focus:ring-2 focus:ring-zeus-gold/40 focus:border-zeus-gold;
+  .z-table th {
+    @apply text-left px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.1em];
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
   }
 
-  .zeus-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zeus-gold text-white text-sm font-semibold uppercase tracking-wider rounded-lg hover:bg-zeus-gold-dark transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
+  .z-table td {
+    @apply px-4 py-3 text-[13px];
+    color: rgba(255,255,255,0.7);
+    border-bottom: 1px solid var(--surface-2);
   }
 
-  .zeus-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-zeus-stone-700 text-sm font-medium border border-zeus-stone-300 rounded-lg hover:bg-zeus-stone-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  .z-table tbody tr:last-child td {
+    border-bottom: none;
   }
 
-  .zeus-table th {
-    @apply text-left px-4 py-3 text-xs font-bold uppercase tracking-wider text-zeus-stone-500 border-b-2 border-zeus-stone-200;
-  }
-
-  .zeus-table td {
-    @apply px-4 py-3 text-sm text-zeus-stone-700 border-b border-zeus-stone-100;
-  }
-
-  .zeus-table tbody tr {
-    @apply hover:bg-zeus-stone-50 transition-colors;
+  .z-table tbody tr:hover td {
+    background: var(--surface-2);
+    color: #fff;
   }
 }

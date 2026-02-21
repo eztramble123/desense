@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Providers } from "./providers";
 import { Sidebar } from "./components/Sidebar";
-import { ConnectButton } from "./components/ConnectButton";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
+
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
@@ -17,32 +16,18 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Zeus - Proof-of-Generation Energy Verification",
-  description: "Blockchain-verified energy proof-of-generation platform on ADI Chain",
+  title: "Zeus — Proof-of-Generation",
+  description: "Verified energy generation monitoring on ADI Chain",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zeus-stone-50`}
-      >
-        <Providers>
-          <div className="flex min-h-screen">
-            <Sidebar />
-            <div className="flex-1 flex flex-col">
-              <header className="h-14 bg-zeus-stone-900 border-b border-zeus-stone-700 flex items-center justify-between px-8">
-                <span className="zeus-label text-zeus-stone-400">ADI CHAIN TESTNET</span>
-                <ConnectButton />
-              </header>
-              <main className="flex-1 p-8 bg-zeus-stone-50">{children}</main>
-            </div>
-          </div>
-        </Providers>
+      <body className={`${geistSans.variable} ${geistMono.variable} bg-[#04091c] text-white antialiased`}>
+        <div className="flex min-h-screen">
+          <Sidebar />
+          <main className="flex-1 overflow-auto">{children}</main>
+        </div>
       </body>
     </html>
   );
