@@ -4,11 +4,11 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import clsx from "clsx";
 import { ChevronDown } from "lucide-react";
-import { OutputChart } from "../components/OutputChart";
+import { OutputChart } from "../../components/OutputChart";
 import { SAMPLE_ASSETS, SAMPLE_ASSET_READINGS } from "../data/sample";
 
 const AssetMap = dynamic(
-  () => import("../components/AssetMap").then((m) => m.AssetMap),
+  () => import("../../components/AssetMap").then((m) => m.AssetMap),
   { ssr: false, loading: () => <div className="rounded-xl bg-[#0a1530] border border-[#152046]" style={{ height: 420 }} /> }
 );
 
@@ -85,7 +85,6 @@ export default function AnalyticsPage() {
         </h1>
       </div>
 
-      {/* Filters */}
       <div className="panel p-5 space-y-4">
         <FilterBar label="Type"   options={TYPE_OPTIONS}   value={type}   onChange={setType} />
         <FilterBar label="Region" options={REGION_OPTIONS} value={region} onChange={setRegion} />
@@ -100,7 +99,6 @@ export default function AnalyticsPage() {
         </div>
       ) : (
         <>
-          {/* Stat boxes — centered, each in own container */}
           <div className="grid grid-cols-4 gap-4">
             <StatBox label="Assets"            value={filtered.length}                              sub={`of ${SAMPLE_ASSETS.length} total`} />
             <StatBox label="Total Generation"  value={`${(totalGen / 1000).toFixed(1)} MWh`}        sub="lifetime" />
@@ -108,10 +106,8 @@ export default function AnalyticsPage() {
             <StatBox label="Avg Uptime"         value={`${avgUptime.toFixed(1)}%`}                  sub={`${totalBatches} batches`} />
           </div>
 
-          {/* Map */}
           <AssetMap assets={filtered} />
 
-          {/* Chart */}
           <div className="panel p-8">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -127,7 +123,6 @@ export default function AnalyticsPage() {
             <OutputChart data={chartData} height={260} />
           </div>
 
-          {/* Per-asset breakdown — collapsible */}
           <div className="panel overflow-hidden">
             <button
               onClick={() => setAssetsOpen((o) => !o)}

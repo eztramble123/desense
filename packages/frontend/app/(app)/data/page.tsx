@@ -51,7 +51,6 @@ export default function DataPage() {
         </h1>
       </div>
 
-      {/* Asset */}
       <div className="panel p-6 space-y-5">
         <p className="label">Asset</p>
         <div className="grid grid-cols-4 gap-5">
@@ -70,7 +69,6 @@ export default function DataPage() {
         </div>
       </div>
 
-      {/* SLA */}
       <div className="panel p-6 space-y-5">
         <p className="label">SLA</p>
         <div className="grid grid-cols-4 gap-5">
@@ -82,7 +80,6 @@ export default function DataPage() {
         </div>
       </div>
 
-      {/* Batch */}
       <div className="panel p-6 space-y-5">
         <p className="label">Batch #{SAMPLE_BATCH.batchId}</p>
         <div className="grid grid-cols-4 gap-5">
@@ -100,7 +97,6 @@ export default function DataPage() {
         </div>
       </div>
 
-      {/* Individual readings */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <p className="label">Readings</p>
