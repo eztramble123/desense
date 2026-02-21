@@ -1,0 +1,28 @@
+{
+  "name": "@desense/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "deploy": "hardhat deploy-zksync --script deploy.ts",
+    "seed": "hardhat run scripts/seed-demo.ts",
+    "clean": "hardhat clean && rm -rf artifacts cache typechain-types"
+  },
+  "devDependencies": {
+    "@matterlabs/hardhat-zksync": "^1.2.1",
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
+    "@openzeppelin/contracts": "^5.1.0",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "chai": "^4.4.1",
+    "ethers": "^6.13.4",
+    "hardhat": "^2.22.17",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^5.7.0",
+    "zksync-ethers": "^6.15.3",
+    "dotenv": "^16.4.7"
+  }
+}
