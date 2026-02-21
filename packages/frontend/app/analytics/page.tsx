@@ -62,7 +62,7 @@ export default function AnalyticsPage() {
   );
 
   const totalGen     = filtered.reduce((s, a) => s + a.totalGenerationKwh, 0);
-  const avgCF        = filtered.length ? filtered.reduce((s, a) => s + a.capacityFactor, 0) / filtered.length : 0;
+  const avgLoadKw    = filtered.length ? filtered.reduce((s, a) => s + a.sla.avgOutput / 500, 0) / filtered.length : 0;
   const avgUptime    = filtered.length ? filtered.reduce((s, a) => s + a.sla.avgUptime, 0) / filtered.length : 0;
   const totalBatches = filtered.reduce((s, a) => s + a.sla.totalBatches, 0);
 
@@ -102,7 +102,7 @@ export default function AnalyticsPage() {
           <div className="grid grid-cols-4 gap-4">
             <StatBox label="Assets"            value={filtered.length}                              sub={`of ${SAMPLE_STATS.totalAssets} total`} />
             <StatBox label="Total Generation"  value={`${(totalGen / 1000).toFixed(1)} MWh`}        sub="lifetime" />
-            <StatBox label="Avg Capacity Factor" value={`${avgCF.toFixed(1)}%`} />
+            <StatBox label="Avg Load" value={`${avgLoadKw.toFixed(1)} kW`} />
             <StatBox label="Avg Uptime"         value={`${avgUptime.toFixed(1)}%`}                  sub={`${totalBatches} batches`} />
           </div>
 
