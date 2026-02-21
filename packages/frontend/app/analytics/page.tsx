@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import clsx from "clsx";
 import { ChevronDown } from "lucide-react";
+<<<<<<< Updated upstream:packages/frontend/app/analytics/page.tsx
 import { OutputChart } from "../components/OutputChart";
 import { SAMPLE_ASSETS, SAMPLE_ASSET_READINGS } from "../data/sample";
+=======
+import { OutputChart } from "../../components/OutputChart";
+import { api, type ApiAsset, type MapAsset, type NetworkStats, type Batch } from "../../lib/api";
+>>>>>>> Stashed changes:packages/frontend/app/(app)/analytics/page.tsx
 
 const AssetMap = dynamic(
   () => import("../components/AssetMap").then((m) => m.AssetMap),
@@ -14,8 +19,15 @@ const AssetMap = dynamic(
 
 const DISPLAY_FONT = { fontFamily: "'Barlow Condensed', sans-serif" };
 
-const TYPE_OPTIONS   = ["All", "Residential", "Commercial"];
-const REGION_OPTIONS = ["All", "Middle East", "Europe", "North America", "Asia Pacific"];
+function StatBox({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+  return (
+    <div className="bg-[#0a1530] border border-[#152046] rounded-xl p-6 flex flex-col items-center justify-center text-center gap-1.5">
+      <p className="label">{label}</p>
+      <p className="text-3xl font-black uppercase tracking-tight leading-none text-white" style={DISPLAY_FONT}>{value}</p>
+      {sub && <p className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.3)" }}>{sub}</p>}
+    </div>
+  );
+}
 
 function FilterBar({ label, options, value, onChange }: {
   label: string; options: string[]; value: string; onChange: (v: string) => void;
@@ -41,50 +53,76 @@ function FilterBar({ label, options, value, onChange }: {
   );
 }
 
-function StatBox({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
-  return (
-    <div className="bg-[#0a1530] border border-[#152046] rounded-xl p-6 flex flex-col items-center justify-center text-center gap-1.5">
-      <p className="label">{label}</p>
-      <p className="text-3xl font-black uppercase tracking-tight leading-none text-white" style={DISPLAY_FONT}>
-        {value}
-      </p>
-      {sub && <p className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.3)" }}>{sub}</p>}
-    </div>
-  );
-}
-
 export default function AnalyticsPage() {
-  const [type, setType]       = useState("All");
-  const [region, setRegion]   = useState("All");
+  const [assets, setAssets]       = useState<ApiAsset[]>([]);
+  const [mapAssets, setMapAssets] = useState<MapAsset[]>([]);
+  const [stats, setStats]         = useState<NetworkStats | null>(null);
+  const [batches, setBatches]     = useState<Batch[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState<string | null>(null);
+
+  const [type, setType]     = useState("All");
+  const [region, setRegion] = useState("All");
   const [assetsOpen, setAssetsOpen] = useState(false);
 
-  const filtered = SAMPLE_ASSETS.filter((a) =>
+  useEffect(() => {
+    Promise.all([api.stats(), api.assets(), api.mapAssets(), api.batches()])
+      .then(([s, a, m, b]) => {
+        setStats(s);
+        setAssets(a.assets);
+        setMapAssets(m.assets);
+        setBatches(b.batches);
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const typeOptions   = ["All", ...Array.from(new Set(assets.map((a) => a.deviceTypeLabel)))];
+  const regionOptions = ["All", ...Array.from(new Set(assets.map((a) => a.region)))];
+
+  const filteredAssets = assets.filter((a) =>
     (type === "All" || a.deviceTypeLabel === type) &&
     (region === "All" || a.region === region)
   );
 
-  const totalGen     = filtered.reduce((s, a) => s + a.totalGenerationKwh, 0);
-  const avgLoadKw    = filtered.length ? filtered.reduce((s, a) => s + a.sla.avgOutput / 500, 0) / filtered.length : 0;
-  const avgUptime    = filtered.length ? filtered.reduce((s, a) => s + a.sla.avgUptime, 0) / filtered.length : 0;
-  const totalBatches = filtered.reduce((s, a) => s + a.sla.totalBatches, 0);
+  const filteredIds = new Set(filteredAssets.map((a) => a.id));
 
-  const chartData = filtered.length
-    ? SAMPLE_ASSET_READINGS[filtered[0].id].map((_, i) => ({
-        timestamp: SAMPLE_ASSET_READINGS[filtered[0].id][i].timestamp,
-        output: filtered.reduce((s, a) => s + (SAMPLE_ASSET_READINGS[a.id][i]?.output ?? 0) / 1000, 0),
-      }))
-    : [];
+  const filteredMapAssets = mapAssets.filter((a) =>
+    (type === "All" || a.deviceTypeLabel === type) &&
+    (region === "All" || a.region === region)
+  );
+
+  const chartData = (() => {
+    const relevant = batches.filter((b) => b.deviceId !== undefined && filteredIds.has(b.deviceId));
+    const byTime = new Map<number, number>();
+    for (const b of relevant) byTime.set(b.windowEnd, (byTime.get(b.windowEnd) ?? 0) + b.avgOutput);
+    return Array.from(byTime.entries()).sort(([a], [b]) => a - b).map(([timestamp, output]) => ({ timestamp, output }));
+  })();
+
+  if (loading) return (
+    <div className="p-10 flex items-center justify-center min-h-[60vh]">
+      <p className="label animate-pulse">Loading chain data…</p>
+    </div>
+  );
+
+  if (error) return (
+    <div className="p-10 flex items-center justify-center min-h-[60vh]">
+      <div className="text-center">
+        <p className="text-white/40 text-[13px] mb-2">Could not reach backend</p>
+        <p className="font-mono text-[11px] text-red-400/60">{error}</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="p-10 max-w-5xl space-y-8">
 
       <div>
         <p className="label mb-2">Overview</p>
-        <h1 className="text-5xl font-black uppercase tracking-tight leading-none" style={DISPLAY_FONT}>
-          Analytics
-        </h1>
+        <h1 className="text-5xl font-black uppercase tracking-tight leading-none" style={DISPLAY_FONT}>Analytics</h1>
       </div>
 
+<<<<<<< Updated upstream:packages/frontend/app/analytics/page.tsx
       {/* Filters */}
       <div className="panel p-5 space-y-4">
         <FilterBar label="Type"   options={TYPE_OPTIONS}   value={type}   onChange={setType} />
@@ -122,10 +160,38 @@ export default function AnalyticsPage() {
               </div>
               <p className="text-[11px] font-mono text-white/20">
                 {filtered.length} asset{filtered.length > 1 ? "s" : ""} · 48 readings each
+=======
+      {typeOptions.length > 1 && (
+        <div className="panel p-5 space-y-4">
+          <FilterBar label="Type"   options={typeOptions}   value={type}   onChange={setType} />
+          <FilterBar label="Region" options={regionOptions} value={region} onChange={setRegion} />
+        </div>
+      )}
+
+      {stats && (
+        <div className="grid grid-cols-4 gap-4">
+          <StatBox label="Assets"           value={stats.activeAssets}                                  sub={`of ${stats.totalAssets} registered`} />
+          <StatBox label="Total Generation" value={`${(stats.totalGenerationKwh / 1000).toFixed(1)} MWh`} sub="lifetime" />
+          <StatBox label="Avg Uptime"       value={`${stats.avgUptime.toFixed(1)}%`}                    sub={`${stats.totalBatches} batches`} />
+          <StatBox label="Last 24h"         value={`${stats.last24h.generationKwh.toFixed(0)} kWh`}     sub={`${stats.last24h.batchesSubmitted} batches`} />
+        </div>
+      )}
+
+      {filteredMapAssets.length > 0 && <AssetMap assets={filteredMapAssets} />}
+
+      {chartData.length > 0 && (
+        <div className="panel p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <p className="label mb-1">Combined Output</p>
+              <p className="text-white/40 text-[13px]">
+                {type !== "All" ? type : "All types"} · {region !== "All" ? region : "All regions"}
+>>>>>>> Stashed changes:packages/frontend/app/(app)/analytics/page.tsx
               </p>
             </div>
-            <OutputChart data={chartData} height={260} />
+            <p className="text-[11px] font-mono text-white/20">{filteredIds.size} asset{filteredIds.size !== 1 ? "s" : ""}</p>
           </div>
+<<<<<<< Updated upstream:packages/frontend/app/analytics/page.tsx
 
           {/* Per-asset breakdown — collapsible */}
           <div className="panel overflow-hidden">
@@ -175,7 +241,38 @@ export default function AnalyticsPage() {
             )}
           </div>
         </>
+=======
+          <OutputChart data={chartData} height={260} />
+        </div>
+>>>>>>> Stashed changes:packages/frontend/app/(app)/analytics/page.tsx
       )}
+
+      <div className="panel overflow-hidden">
+        <button
+          onClick={() => setAssetsOpen((o) => !o)}
+          className="w-full px-6 py-4 flex items-center justify-between hover:bg-[#0f1e42] transition-colors"
+        >
+          <p className="label">Assets ({filteredAssets.length})</p>
+          <ChevronDown className={clsx("w-4 h-4 text-white/30 transition-transform", assetsOpen && "rotate-180")} />
+        </button>
+        {assetsOpen && (
+          <div className="divide-y divide-[#152046] border-t border-[#152046]">
+            {filteredAssets.map((a) => (
+              <div key={a.id} className="px-6 py-4 flex items-center gap-6">
+                <div className="flex-1 grid grid-cols-4 gap-4">
+                  <div><p className="label mb-1">Type</p><p className="text-[13px] text-white/80 font-medium">{a.deviceTypeLabel}</p></div>
+                  <div><p className="label mb-1">Location</p><p className="text-[13px] text-white/60">{a.location}</p></div>
+                  <div><p className="label mb-1">Region</p><p className="text-[13px] text-white/60">{a.region}</p></div>
+                  <div><p className="label mb-1">Capacity</p><p className="text-[13px] text-white/60">{a.capacityKw} kW</p></div>
+                </div>
+                <span className="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shrink-0">
+                  {a.statusLabel}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
     </div>
   );

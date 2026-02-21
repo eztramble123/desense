@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { RiBarChartBoxLine, RiDatabase2Line, RiFlashlightLine } from "react-icons/ri";
+import { RiBarChartBoxLine, RiDatabase2Line, RiFlashlightLine, RiUploadCloud2Line } from "react-icons/ri";
 import clsx from "clsx";
 
 const NAV = [
   { href: "/analytics",  label: "Analytics",   icon: RiBarChartBoxLine },
   { href: "/data",       label: "Sample Data", icon: RiDatabase2Line },
+  { href: "/submit",     label: "Submit Data", icon: RiUploadCloud2Line },
 ];
 
 export function Sidebar() {
