@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import "../interfaces/IDataCommitment.sol";
 import "../interfaces/IZeusAccessControl.sol";
 import "../interfaces/IDeviceRegistry.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract DataCommitment is IDataCommitment {
@@ -43,10 +42,6 @@ contract DataCommitment is IDataCommitment {
         uint256 uptimeBps
     ) external returns (uint256 batchId) {
         require(accessControl.isOperator(msg.sender), "DataCommitment: caller is not operator");
-        require(
-            IERC721(address(deviceRegistry)).ownerOf(deviceId) == msg.sender,
-            "DataCommitment: caller is not device owner"
-        );
 
         IDeviceRegistry.DeviceMetadata memory device = deviceRegistry.getDevice(deviceId);
         require(device.status == IDeviceRegistry.DeviceStatus.Active, "DataCommitment: device not active");

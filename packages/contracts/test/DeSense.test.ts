@@ -184,12 +184,31 @@ describe("Zeus Protocol", function () {
       expect(sla.cumulativeUptime).to.equal(19300); // 9500 + 9800
     });
 
-    it("should prevent non-owner from submitting", async function () {
+    it("should prevent non-operator from submitting", async function () {
       const now = Math.floor(Date.now() / 1000);
       const dataRoot = ethers.keccak256(ethers.toUtf8Bytes("test"));
       await expect(
         commitment.connect(buyer).submitBatch(0, now - 300, now, dataRoot, "Qm", 50, 9500)
-      ).to.be.reverted;
+      ).to.be.revertedWith("DataCommitment: caller is not operator");
+    });
+
+    it("should allow a different operator to submit for a device they don't own", async function () {
+      // Grant operator role to a second account that does NOT own the device
+      const otherOperator = other;
+      const otherOperatorAddr = await otherOperator.getAddress();
+      await accessControl.grantOperatorRole(otherOperatorAddr);
+
+      const now = Math.floor(Date.now() / 1000);
+      const dataRoot = ethers.keccak256(ethers.toUtf8Bytes("delegated-test"));
+
+      // otherOperator submits a batch for device 0 (owned by `operator`)
+      await commitment.connect(otherOperator).submitBatch(
+        0, now - 300, now, dataRoot, "QmDelegated", 50, 9500
+      );
+
+      const batch = await commitment.getBatch(1);
+      expect(batch.deviceId).to.equal(0);
+      expect(batch.submitter).to.equal(otherOperatorAddr);
     });
 
     it("should paginate batches", async function () {
