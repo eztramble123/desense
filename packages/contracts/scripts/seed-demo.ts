@@ -1,10 +1,8 @@
 import { ethers } from "hardhat";
-import { Wallet, Provider } from "zksync-ethers";
 import "dotenv/config";
 
 async function main() {
-  const provider = new Provider("https://rpc.ab.testnet.adifoundation.ai/");
-  const wallet = new Wallet(process.env.PRIVATE_KEY!, provider);
+  const [signer] = await ethers.getSigners();
 
   // Load contract addresses from env
   const addresses = {
@@ -15,22 +13,24 @@ async function main() {
     trigger: process.env.NEXT_PUBLIC_FINANCING_TRIGGER!,
   };
 
-  console.log("Seeding demo data with wallet:", wallet.address);
+  console.log("Seeding demo data with wallet:", signer.address);
+  const balance = await ethers.provider.getBalance(signer.address);
+  console.log("Balance:", ethers.formatEther(balance), "ADI");
 
   // Get contract instances
-  const accessControl = await ethers.getContractAt("ZeusAccessControl", addresses.accessControl, wallet as any);
-  const registry = await ethers.getContractAt("DeviceRegistry", addresses.registry, wallet as any);
-  const commitment = await ethers.getContractAt("DataCommitment", addresses.commitment, wallet as any);
-  const marketplace = await ethers.getContractAt("DataMarketplace", addresses.marketplace, wallet as any);
-  const trigger = await ethers.getContractAt("FinancingTrigger", addresses.trigger, wallet as any);
+  const accessControl = await ethers.getContractAt("ZeusAccessControl", addresses.accessControl, signer);
+  const registry = await ethers.getContractAt("DeviceRegistry", addresses.registry, signer);
+  const commitment = await ethers.getContractAt("DataCommitment", addresses.commitment, signer);
+  const marketplace = await ethers.getContractAt("DataMarketplace", addresses.marketplace, signer);
+  const trigger = await ethers.getContractAt("FinancingTrigger", addresses.trigger, signer);
 
   // 1. Grant roles
   console.log("\n--- Granting Roles ---");
-  let tx = await accessControl.grantOperatorRole(wallet.address);
+  let tx = await accessControl.grantOperatorRole(signer.address);
   await tx.wait();
   console.log("Granted OPERATOR_ROLE to deployer");
 
-  tx = await accessControl.grantBuyerRole(wallet.address);
+  tx = await accessControl.grantBuyerRole(signer.address);
   await tx.wait();
   console.log("Granted BUYER_ROLE to deployer");
 
@@ -103,17 +103,19 @@ async function main() {
 
   for (let i = 0; i < 4; i++) {
     const dataRoot = ethers.keccak256(ethers.toUtf8Bytes(`demo-batch-device-${i}-${Date.now()}`));
+    const windowStart = now - 600 - (i * 600); // stagger windows per device
+    const windowEnd = windowStart + 300; // 5 min window
     tx = await commitment.submitBatch(
       i, // deviceId
-      now - 300, // 5 min ago
-      now - 300 + (i * 300), // stagger windowStart to avoid duplicates across runs
+      windowStart,
+      windowEnd,
       dataRoot,
       `QmDemo${i}BatchCid${Date.now().toString(36)}`,
       50 + i * 10, // avg output
       9000 + i * 200, // uptime bps (90%+)
     );
     await tx.wait();
-    console.log(`Submitted batch for device ${i}`);
+    console.log(`Submitted batch for device ${i} (window: ${windowStart}-${windowEnd})`);
   }
 
   // 4. Create a data order
@@ -139,7 +141,7 @@ async function main() {
   // 6. Create financing trigger
   console.log("\n--- Creating Financing Trigger ---");
   tx = await trigger.createTrigger(
-    wallet.address, // beneficiary
+    signer.address, // beneficiary
     0, // deviceId (Solar Array)
     0, // OutputAbove
     40, // threshold: 40 kWh

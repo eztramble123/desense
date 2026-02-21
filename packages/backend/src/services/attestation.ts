@@ -18,6 +18,15 @@ export interface AttestationResult {
   tree: StandardMerkleTree<[string, string, string]>;
 }
 
+// Transaction mutex to prevent nonce conflicts when multiple ingests arrive concurrently
+let txQueue: Promise<any> = Promise.resolve();
+
+function withTxLock<T>(fn: () => Promise<T>): Promise<T> {
+  const result = txQueue.then(fn, fn); // run even if previous failed
+  txQueue = result.catch(() => {}); // swallow to keep chain going
+  return result;
+}
+
 export async function attestReadings(
   deviceId: number,
   readings: SensorReading[]
@@ -51,31 +60,35 @@ export async function attestReadings(
   // Pin to IPFS
   const ipfsCid = await pinToIPFS(deviceId, windowStart, windowEnd, avgOutput, uptimeBps, dataRoot, readings);
 
-  // Submit on-chain
-  const commitment = getCommitment();
-  const tx = await commitment.submitBatch(
-    deviceId,
-    windowStart,
-    windowEnd,
-    dataRoot,
-    ipfsCid,
-    avgOutput,
-    uptimeBps
-  );
+  // Submit on-chain (serialized to prevent nonce conflicts)
+  const { batchId, receipt } = await withTxLock(async () => {
+    const commitment = getCommitment();
+    const tx = await commitment.submitBatch(
+      deviceId,
+      windowStart,
+      windowEnd,
+      dataRoot,
+      ipfsCid,
+      avgOutput,
+      uptimeBps
+    );
 
-  const receipt = await tx.wait();
+    const txReceipt = await tx.wait();
 
-  // Parse batchId from event
-  let batchId = 0;
-  for (const log of receipt.logs) {
-    try {
-      const parsed = commitment.interface.parseLog(log);
-      if (parsed?.name === "BatchSubmitted") {
-        batchId = Number(parsed.args[0]);
-        break;
-      }
-    } catch { /* skip non-matching logs */ }
-  }
+    // Parse batchId from event
+    let parsedBatchId = 0;
+    for (const log of txReceipt.logs) {
+      try {
+        const parsed = commitment.interface.parseLog(log);
+        if (parsed?.name === "BatchSubmitted") {
+          parsedBatchId = Number(parsed.args[0]);
+          break;
+        }
+      } catch { /* skip non-matching logs */ }
+    }
+
+    return { batchId: parsedBatchId, receipt: txReceipt };
+  });
 
   // Index locally
   upsertBatch({
@@ -93,11 +106,11 @@ export async function attestReadings(
     txHash: receipt.hash,
   });
 
-  // Evaluate triggers & settle orders in background
-  evaluateTriggersForBatch(batchId, deviceId).catch((err) =>
+  // Evaluate triggers & settle orders in background (also serialized)
+  withTxLock(() => evaluateTriggersForBatch(batchId, deviceId)).catch((err) =>
     console.error("[Attestation] Trigger eval error:", err.message)
   );
-  settleOrdersForBatch(batchId, deviceId).catch((err) =>
+  withTxLock(() => settleOrdersForBatch(batchId, deviceId)).catch((err) =>
     console.error("[Attestation] Order settle error:", err.message)
   );
 
