@@ -48,35 +48,33 @@ export function AssetMap({ assets }: AssetMapProps) {
             longitude={hovered.longitude}
             latitude={hovered.latitude}
             anchor="bottom"
-            offset={14}
+            offset={16}
             closeButton={false}
             closeOnClick={false}
-            style={{ padding: 0 }}
           >
             <div style={{
-              background: "#0a1530",
-              border: "1px solid #152046",
-              borderRadius: 10,
-              padding: "12px 16px",
-              minWidth: 200,
+              background: "#060e24",
+              border: "1px solid #1a2d50",
+              borderRadius: 8,
+              padding: "10px 14px",
+              minWidth: 180,
               fontFamily: "Barlow, system-ui, sans-serif",
             }}>
-              <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.38)", marginBottom: 4 }}>
+              <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.3)", marginBottom: 5 }}>
                 {hovered.deviceTypeLabel} · {hovered.region}
               </p>
-              <p style={{ fontSize: 14, fontWeight: 600, color: "#fff", marginBottom: 8 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: "#fff", marginBottom: 10, lineHeight: 1.3 }}>
                 {hovered.location}
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px 16px" }}>
+              <div style={{ display: "flex", gap: 16 }}>
                 {[
-                  ["Capacity",   `${hovered.capacityKw} kW`],
-                  ["CF",         `${hovered.capacityFactor}%`],
-                  ["Uptime",     `${hovered.sla.avgUptime.toFixed(1)}%`],
-                  ["Batches",    `${hovered.sla.totalBatches}`],
-                ].map(([label, value]) => (
+                  [`${hovered.capacityKw} kW`,              "Capacity"],
+                  [`${hovered.capacityFactor}%`,            "Cap. Factor"],
+                  [`${hovered.sla.avgUptime.toFixed(0)}%`,  "Uptime"],
+                ].map(([value, label]) => (
                   <div key={label}>
-                    <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 1 }}>{label}</p>
-                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>{value}</p>
+                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>{value}</p>
+                    <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>{label}</p>
                   </div>
                 ))}
               </div>
